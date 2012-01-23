@@ -12,3 +12,4 @@ Cloud-Services put constraints on how an application is allowed to run on their 
 * Writing cache and log-files into a writable directory.
 * Distributed sessions (through PDO or Windows Azure Table)
 * Deploying assets to Azure Blob Storage
+
