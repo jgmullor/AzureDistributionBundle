@@ -10,7 +10,7 @@
         <parameter key="windows_azure_distribution.deployment.azure_sdk_command_builder.class">WindowsAzure\DistributionBundle\Deployment\AzureSDKCommandBuilder</parameter>
     </parameters>
     <services>
-        <service id="windows_azure_distribution.config.service_definition" class="WindowsAzure\DistributionBundle\Deployment\ServiceConfiguration">
+        <service id="windows_azure_distribution.config.service_definition" class="WindowsAzure\DistributionBundle\Deployment\ServiceDefinition">
             <argument>%windows_azure_distribution.config.service_definition_file%</argument>
         </service>
 
