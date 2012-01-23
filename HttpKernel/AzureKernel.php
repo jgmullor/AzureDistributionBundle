@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Kernel;
  *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
-class AzureKernel extends Kernel
+abstract class AzureKernel extends Kernel
 {
     /**
      * @var string
