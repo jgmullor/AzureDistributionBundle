@@ -18,7 +18,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 
+/**
+ * Package a Symfony application for deployment.
+ *
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ */
 class PackageCommand extends ContainerAwareCommand
 {
     protected function configure()
@@ -32,15 +38,33 @@ class PackageCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $kernel = $this->getContainer()->get('kernel');
-        $rootDir = $kernel->getRootDir();
-        $azureDir = $rootDir . '/azure';
-        $filesystem = new Filesystem();
+        $serviceDefinition = $this->getContainer()->get('windows_azure_distribution.config.service_definition');
+        $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
+        $cmd = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $input->getOption('dev-fabric'));
 
-        if ( ! file_exists($azureDir) ) {
-            $output->writeln('No WindowsAzure directory found. Creating in <info>%s</info>', $azureDir));
-            $filesystem->mirror($kernel->locateResource("@WindowsAzureDistributionBundle/Resources/azure_scaffold"), $azureDir, null, array('copy_on_windows' => true));
+        $process = new Process($this->getAzureSdkBinaryFolder() . '\\' . $cmd);
+        $process->run();
+
+        if ( ! $process->isSuccessful()) {
+            throw new \RuntimeException($process->getErrorOutput());
         }
+
+        print $process->getOutput();
+    }
+
+    private function getAzureSdkBinaryFolder()
+    {
+        $programDirectories = array('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432');
+        $binDirectories = array('Windows Azure SDK\*\bin', 'Windows Azure Emulator\emulator');
+        foreach ($programDirectories as $programDirectory) {
+            foreach ($binDirectories as $binDirectory) {
+                if ($dirs = glob($programDirectory . '\\' . $binDirectoy, GLOB_NOSORT)) {
+                    return $dirs;
+                }
+            }
+        }
+
+        throw new \RuntimeException("Cannot find Windows Azure SDK. You can download the SDK from http://www.windowsazure.com.");
     }
 }
 

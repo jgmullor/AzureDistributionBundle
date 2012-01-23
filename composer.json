@@ -6,6 +6,10 @@
     ],
     "require": {
         "symfony/symfony": ">=2.0.0"
-    }
+    },
+    "autoload": {
+        "psr-0": { "WindowsAzure\\DistributionBundle":"" }
+    },
+    "target-dir": "WindowsAzure/DistributionBundle"
 }
 

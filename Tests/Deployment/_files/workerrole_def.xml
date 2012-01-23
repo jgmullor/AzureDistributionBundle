@@ -1,0 +1,49 @@
+<ServiceDefinition name="service-name" upgradeDomainCount="number-of-upgrade-domains">
+  <WorkerRole name="WorkerRoleTest" vmsize="[ExtraSmall|Small|Medium|Large|ExtraLarge]" enableNativeCodeExecution="[true|false]">
+    <Certificates>
+      <Certificate name="certificate-name" storeLocation="[CurrentUser|LocalMachine]" storeName="[My|Root|CA|Trust|Disallow|TrustedPeople|TrustedPublisher|AuthRoot|AddressBook|custom-store]" />
+    </Certificates>
+    <ConfigurationSettings>
+      <Setting name="setting-name" />
+    </ConfigurationSettings>
+    <Endpoints>
+      <InputEndpoint name="input-endpoint-name" protocol="[http|https|tcp]" localPort="local-port-number" port="port-number" certificate="certificate-name" />
+      <InternalEndpoint name="internal-endpoint-name" protocol="[http|tcp]" port="port-number">
+         <FixedPort port="port-number"/>
+         <FixedPortRange min="minium-port-number" max="maximum-port-number"/>
+      </InternalEndpoint>
+    </Endpoints>
+    <Imports>
+      <Import moduleName="[RemoteAccess|RemoteForwarder|Diagnostics|Connect]"/>
+    </Imports>
+    <LocalResources>
+      <LocalStorage name="local-store-name" cleanOnRoleRecycle="[true|false]" sizeInMB="size-in-megabytes" />
+    </LocalResources>
+    <LocalStorage name="local-store-name" cleanOnRoleRecycle="[true|false]" sizeInMB="size-in-megabytes" />
+    <Runtime executionContext="[limited|elevated]">
+      <Environment>
+         <Variable name="variable-name" value="variable-value">
+            <RoleInstanceValue xpath="xpath-to-role-environment-settings"/>
+          </Variable>          
+      </Environment>
+      <EntryPoint>
+         <NetFxEntryPoint assemblyName="name-of-assembly-containing-entrypoint" targetFrameworkVersion=".net-framework-version"/>
+         <ProgramEntryPoint commandLine="application" setReadyOnProcessStart="[true|false]" />
+      </EntryPoint>
+    </Runtime>
+    <Startup priority="for-internal-use-only">
+      <Task commandLine="" executionContext="[limited|elevated]" taskType="[simple|foreground|background]">
+        <Environment>
+         <Variable name="variable-name" value="variable-value">
+            <RoleInstanceValue xpath="xpath-to-role-environment-settings"/>
+          </Variable>          
+        </Environment>
+      </Task>
+    </Startup>
+    <Contents>
+      <Content destination="destination-folder-name" >
+        <SourceDirectory path="local-source-directory" />
+      </Content>
+    </Contents>
+  </WorkerRole>
+</ServiceDefinition>

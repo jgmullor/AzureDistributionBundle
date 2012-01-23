@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<ServiceDefinition name="service-name" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" upgradeDomainCount="number-of-upgrade-domains">
+  <WebRole name="TestRole" vmsize="[ExtraSmall|Small|Medium|Large|ExtraLarge]" enableNativeCodeExecution="[true|false]">
+    <Certificates>
+      <Certificate name="certificate-name" storeLocation="certificate-store" storeName="store-name" />
+    </Certificates>
+    <ConfigurationSettings>
+      <Setting name="setting-name" />
+    </ConfigurationSettings>
+    <Imports>
+      <Import moduleName="import-module"/>
+    </Imports>
+    <InputEndpoints >
+        <InputEndpoint certificate="certificate-name" ignoreRoleInstanceStatus="[true|false]" name="input-endpoint-name" protocol="[http|https]" localPort="port-number" port="port-number" />
+    </InputEndpoints>
+    <Endpoints>
+      <InputEndpoint certificate="certificate-name" ignoreRoleInstanceStatus="[true|false]" name="input-endpoint-name" protocol="[http|https|tcp]" localPort="port-number" port="port-number" />
+      <InternalEndpoint name="internal-endpoint-name" protocol="[http|tcp]" port="port-number">
+         <FixedPort port="port-number"/>
+         <FixedPortRange min="minium-port-number" max="maximum-port-number"/>
+      </InternalEndpoint>
+    </Endpoints>
+    <LocalResources>
+      <LocalStorage name="local-store-name" cleanOnRoleRecycle="[true|false]" sizeInMB="size-in-megabytes" />
+    </LocalResources>
+    <LocalStorage name="local-store-name" cleanOnRoleRecycle="[true|false]" sizeInMB="size-in-megabytes" />
+    <Runtime executionContext="[limited|elevated]">
+      <Environment>
+         <Variable name="variable-name" value="variable-value">
+            <RoleInstanceValue xpath="xpath-to-role-environment-settings"/>
+          </Variable>
+      </Environment>
+      <EntryPoint>
+         <NetFxEntryPoint assemblyName="name-of-assembly-containing-entrypoint" targetFrameworkVersion=".net-framework-version"/>
+      </EntryPoint>
+    </Runtime>
+    <Sites>
+      <Site name="web-site-name">
+        <VirtualApplication name="application-name" physicalDirectory="directory-path"/>
+        <VirtualDirectory name="directory-path" physicalDirectory="directory-path"/>
+        <Bindings>
+          <Binding name="binding-name" endpointName="endpoint-name-bound-to" hostHeader="url-of-the-site"/>
+        </Bindings>
+      </Site>
+    </Sites>
+    <Startup priority="for-internal-use-only>">
+      <Task commandLine="command-to=execute" executionContext="[limited|elevated]" taskType="[simple|foreground|background]">
+        <Environment>
+         <Variable name="variable-name" value="variable-value">
+            <RoleInstanceValue xpath="xpath-to-role-environment-settings"/>
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
+    <Contents>
+      <Content destination="destination-folder-name" >
+        <SourceDirectory path="local-source-directory" />
+      </Content>
+    </Contents>
+  </WebRole>
+</ServiceDefinition>
