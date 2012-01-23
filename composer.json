@@ -1,0 +1,11 @@
+{
+    "name": "windowsazure/distribution-bundle",
+    "type": "symfony-bundle",
+    "authors": [
+        {"name": "Benjamin Eberlei", "email": "kontakt@beberlei.de"}
+    ],
+    "require": {
+        "symfony/symfony": ">=2.0.0"
+    }
+}
+
