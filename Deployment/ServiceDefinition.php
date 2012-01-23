@@ -24,6 +24,7 @@ class ServiceDefinition
      * @var string
      */
     private $serviceDefinitionFile;
+
     /**
      * @var DOMDocument
      */
