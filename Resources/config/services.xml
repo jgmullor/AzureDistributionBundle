@@ -5,9 +5,9 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter name="windows_azure_distribution.config.service_definition_file">%kernel.root_dir%/azure/ServiceDefinition.csdef</parameter>
-        <parameter name="windows_azure_distribution.config.application_root">%kernel.root_dir%/../</parameter>
-        <parameter name="windows_azure_distribution.deployment.azure_sdk_command_builder.class">WindowsAzure\DistributionBundle\Deployment\AzureSDKCommandBuilder</parameter>
+        <parameter key="windows_azure_distribution.config.service_definition_file">%kernel.root_dir%/azure/ServiceDefinition.csdef</parameter>
+        <parameter key="windows_azure_distribution.config.application_root">%kernel.root_dir%/../</parameter>
+        <parameter key="windows_azure_distribution.deployment.azure_sdk_command_builder.class">WindowsAzure\DistributionBundle\Deployment\AzureSDKCommandBuilder</parameter>
     </parameters>
     <services>
         <service id="windows_azure_distribution.config.service_definition" class="WindowsAzure\DistributionBundle\Deployment\ServiceConfiguration">
