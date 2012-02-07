@@ -63,7 +63,7 @@ class PackageCommand extends ContainerAwareCommand
 
     protected function detectTooLongPathNames($serviceDefinition, $output)
     {
-        $output->writeln("Detecting path that are longer than 248 chars.\n");
+        $output->writeln("Detecting path that are longer than 248 chars.");
         $output->writeln("This can take some minutes...\n");
         $physicalDirs = $serviceDefinition->getPhysicalDirectories();
         $found = array();
@@ -72,7 +72,7 @@ class PackageCommand extends ContainerAwareCommand
             $iterator = $finder->files()->in($dir);
 
             foreach ($iterator as $file) {
-                if (strlen($file->getRealpath()) >= 248) {
+                if (strlen($file->getRealpath()) >= 200) {
                     $output->writeln(sprintf("* %s (%d)", $file->getRealpath(), strlen($file->getRealpath())));
                     $found[] = $file->getRealpath();
                 }

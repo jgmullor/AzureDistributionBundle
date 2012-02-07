@@ -20,3 +20,31 @@ Windows Azure ships with a concept of roles. You can have different Web- or Work
 Symfony applications encourage code-reuse while azure roles enforce complete code seperation. You can have a Multi Kernel application in Symfony, but that can still contain both commands (Worker) and controllers (Web).
 
 Dividing the code that is used on a worker or a web role for Azure will amount to considerable work. However package size has to be taken into account for faster boot operations. This is why the most simple approach to role building with Symfony2 is to ship all the code no matter what the role is. This is how this bundle works by default. If you want to keep the packages smaller you can optionally instruct the packaging to lazily fetch vendors using the Composer library.
+
+## Installation
+
+Add this package to your composer.json:
+
+    {
+        "require": {
+            "beberlei/azure-distribution-bundle": "*"
+        }
+    }
+
+## Azure Kernel
+
+The Azure kernel can be used to set the temporary and cache directories to `sys_get_tempdir()` on production. These are the only writable directories for the webserver on Azure.
+
+    @@@ php
+    <?php
+
+    use Symfony\Component\HttpKernel\Kernel;
+    use Symfony\Component\Config\Loader\LoaderInterface;
+    use WindowsAzure\DistributionBundle\HttpKernel\AzureKernel;
+
+    class AppKernel extends AzureKernel
+    {
+        // keep the old code here.
+    }
+
+## Packaging
