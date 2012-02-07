@@ -48,3 +48,16 @@ The Azure kernel can be used to set the temporary and cache directories to `sys_
     }
 
 ## Packaging
+
+To generate an Azure package just invoke:
+
+    php app\console windowsazure:package
+
+On first time usage the bundle will create a folder `app\azure` for you with the default implementation of the `ServiceDefinition.csdef` and `ServiceConfiguration.cscfg` files which are neccessary to configure Azure to host your application.
+
+Additionally some files will be moved to the `bin` folder of your application and a bunch of files will be moved to `app\azure\resources` and `app\azure\php`.
+
+The command will then try and generate an Azure package for you given this configurations.
+
+In the future there will also be a second command that will use the generated package and deploy it to Azure directly using the management API.
+
