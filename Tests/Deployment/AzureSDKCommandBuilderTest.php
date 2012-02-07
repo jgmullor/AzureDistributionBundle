@@ -22,11 +22,12 @@ class AzureSDKCommandBuilderTest extends \PHPUnit_Framework_TestCase
     {
         $rootPath = "C:\symfony\app";
         $outputPath = "C:\output";
-        $def = new ServiceDefinition(__DIR__ . '/_files/webrole_def.xml');
+        $serviceDefFile = __DIR__ . '/_files/webrole_def.xml';
+        $def = new ServiceDefinition($serviceDefFile);
         $builder = new AzureSDKCommandBuilder($rootPath, $outputPath);
 
         $cmd = $builder->buildPackageCmd($def, true);
-        $this->assertEquals('cspack.exe /role:TestRole;C:\symfony\app /out:C:\output /copyOnly', $cmd);
+        $this->assertEquals('cspack.exe '.$serviceDefFile.' /role:TestRole;C:\symfony\app /out:C:\output /copyOnly', $cmd);
     }
 }
 

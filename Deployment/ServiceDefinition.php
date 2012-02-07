@@ -36,7 +36,10 @@ class ServiceDefinition
     public function __construct($serviceDefinitionFile)
     {
         if (!file_exists($serviceDefinitionFile)) {
-            throw new \InvalidArgumentException("No valid file-path given.");
+            throw new \InvalidArgumentException(sprintf(
+                "No valid file-path given. The ServiceDefinition should be at %s but could not be found.",
+                $serviceDefinitionFile
+            ));
         }
 
         $this->serviceDefinitionFile = $serviceDefinitionFile;

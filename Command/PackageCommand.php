@@ -49,7 +49,7 @@ class PackageCommand extends ContainerAwareCommand
             throw new \RuntimeException($process->getErrorOutput());
         }
 
-        print $process->getOutput();
+        $output->writeln( $process->getOutput() );
     }
 
     private function getAzureSdkBinaryFolder()
@@ -58,7 +58,7 @@ class PackageCommand extends ContainerAwareCommand
         $binDirectories = array('Windows Azure SDK\*\bin', 'Windows Azure Emulator\emulator');
         foreach ($programDirectories as $programDirectory) {
             foreach ($binDirectories as $binDirectory) {
-                if ($dirs = glob($programDirectory . '\\' . $binDirectoy, GLOB_NOSORT)) {
+                if ($dirs = glob($programDirectory . '\\' . $binDirectory, GLOB_NOSORT)) {
                     return $dirs;
                 }
             }

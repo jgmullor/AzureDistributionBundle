@@ -32,7 +32,7 @@ abstract class AzureKernel extends Kernel
     {
         parent::init();
 
-        $isAzure = isset( $_SERVER['RoleId'] );
+        $isAzure = isset( $_SERVER['RdRoleId'] );
         if ($isAzure) {
             $this->tempDir = sys_get_temp_dir() . "/sf_" . crc32($this->rootDir);
         } else {
