@@ -54,22 +54,31 @@ class ServiceDefinition
 
     public function getWebRoleNames()
     {
-        return $this->getRoleNames("WebRole");
+        return $this->getValues('WebRole', 'name');
     }
 
     public function getWorkerRoleNames()
     {
-        return $this->getRoleNames("WorkerRole");
+        return $this->getValues('WorkerRole', 'name');
     }
 
-    private function getRoleNames($tagName)
+    private function getValues($tagName, $attributeName)
     {
         $nodes = $this->dom->getElementsByTagName($tagName);
-        $roleNames = array();
+        $values = array();
         foreach ($nodes as $node) {
-            $roleNames[] = $node->getAttribute('name');
+            $values[] = $node->getAttribute($attributeName);
         }
-        return $roleNames;
+        return $values;
+    }
+
+    public function getPhysicalDirectories()
+    {
+        $sites = $this->getValues('Site', 'physicalDirectory');
+        $dir = dirname($this->serviceDefinitionFile);
+        return array_map(function($site) use ($dir) {
+            return realpath($dir . "\\" . $site);
+        }, $sites);
     }
 }
 

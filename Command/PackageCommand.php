@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Package a Symfony application for deployment.
@@ -33,41 +33,62 @@ class PackageCommand extends ContainerAwareCommand
             ->setName('windowsazure:package')
             ->setDescription('Packages this symfony application for deployment on Windows Azure.')
             ->addOption('dev-fabric', null, InputOption::VALUE_OPTIONAL, 'Build package for dev-fabric? Defaults to yes.')
+            ->addOption('long-path-detection', null, InputOption::VALUE_OPTIONAL, 'Long path detection will check for file-paths >= 248 chars which are not allowed.')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln("Loading ServiceDefinition.csdef file..");
         $serviceDefinition = $this->getContainer()->get('windows_azure_distribution.config.service_definition');
-        $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
-        $cmd = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $input->getOption('dev-fabric'));
 
-        $process = new Process($this->getAzureSdkBinaryFolder() . '\\' . $cmd);
+        if ($input->getOption('long-path-detection')) {
+            $this->detectTooLongPathNames($serviceDefinition, $output);
+        }
+
+        $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
+        $output->writeln("Building Azure SDK packages into directory:");
+        $output->writeln($azureCmdBuilder->getOutputDir());
+
+        $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $input->getOption('dev-fabric'));
+        $process = $azureCmdBuilder->getProcess($args);// @todo: Update to ProcessBuilder in 2.1 Symfony
         $process->run();
 
         if ( ! $process->isSuccessful()) {
-            throw new \RuntimeException($process->getErrorOutput());
+            throw new \RuntimeException($process->getErrorOutput() ?: $process->getOutput());
         }
 
         $output->writeln( $process->getOutput() );
     }
 
-    private function getAzureSdkBinaryFolder()
+    protected function detectTooLongPathNames($serviceDefinition, $output)
     {
-        $programDirectories = array('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432');
-        $binDirectories = array('Windows Azure SDK\*\bin', 'Windows Azure Emulator\emulator');
-        foreach ($programDirectories as $programDirectory) {
-            if (isset($_SERVER[$programDirectory])) {
-                $programDirectory = $_SERVER[$programDirectory];
-                foreach ($binDirectories as $binDirectory) {
-                    if ($dirs = glob($programDirectory . '\\' . $binDirectory, GLOB_NOSORT)) {
-                        return $dirs;
-                    }
+        $output->writeln("Detecting path that are longer than 248 chars");
+        $physicalDirs = $serviceDefinition->getPhysicalDirectories();
+        $found = array();
+        foreach ($physicalDirs as $dir) {
+            $finder = new Finder();
+            $iterator = $finder->files()->in($dir);
+
+            foreach ($iterator as $file) {
+                if (strlen($file->getRealpath()) >= 248) {
+                    $found[] = $file->getRealpath();
                 }
             }
         }
 
-        throw new \RuntimeException("Cannot find Windows Azure SDK. You can download the SDK from http://www.windowsazure.com.");
+        if ($found) {
+            $output->writeln(sprintf(
+                        "Found %d paths that are longer than 248 chars.\n" .
+                        "Azure does not support longer path names. You should come up with a solution to fix this.\n" .
+                        "The long file names are:\n",
+                        count($found)
+                        ));
+            foreach ($found as $file) {
+                $output->writeln(sprintf("* %s (%d)\n", $file, strlen($file)));
+            }
+            exit(1);
+        }
     }
 }
 
