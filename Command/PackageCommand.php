@@ -57,9 +57,12 @@ class PackageCommand extends ContainerAwareCommand
         $programDirectories = array('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432');
         $binDirectories = array('Windows Azure SDK\*\bin', 'Windows Azure Emulator\emulator');
         foreach ($programDirectories as $programDirectory) {
-            foreach ($binDirectories as $binDirectory) {
-                if ($dirs = glob($programDirectory . '\\' . $binDirectory, GLOB_NOSORT)) {
-                    return $dirs;
+            if (isset($_SERVER[$programDirectory])) {
+                $programDirectory = $_SERVER[$programDirectory];
+                foreach ($binDirectories as $binDirectory) {
+                    if ($dirs = glob($programDirectory . '\\' . $binDirectory, GLOB_NOSORT)) {
+                        return $dirs;
+                    }
                 }
             }
         }
