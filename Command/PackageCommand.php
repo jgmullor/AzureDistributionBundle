@@ -63,7 +63,8 @@ class PackageCommand extends ContainerAwareCommand
 
     protected function detectTooLongPathNames($serviceDefinition, $output)
     {
-        $output->writeln("Detecting path that are longer than 248 chars");
+        $output->writeln("Detecting path that are longer than 248 chars.\n");
+        $output->writeln("This can take some minutes...\n");
         $physicalDirs = $serviceDefinition->getPhysicalDirectories();
         $found = array();
         foreach ($physicalDirs as $dir) {
@@ -72,6 +73,7 @@ class PackageCommand extends ContainerAwareCommand
 
             foreach ($iterator as $file) {
                 if (strlen($file->getRealpath()) >= 248) {
+                    $output->writeln(sprintf("* %s (%d)", $file->getRealpath(), strlen($file->getRealpath())));
                     $found[] = $file->getRealpath();
                 }
             }
@@ -79,16 +81,14 @@ class PackageCommand extends ContainerAwareCommand
 
         if ($found) {
             $output->writeln(sprintf(
-                        "Found %d paths that are longer than 248 chars.\n" .
-                        "Azure does not support longer path names. You should come up with a solution to fix this.\n" .
-                        "The long file names are:\n",
-                        count($found)
-                        ));
-            foreach ($found as $file) {
-                $output->writeln(sprintf("* %s (%d)\n", $file, strlen($file)));
-            }
+                "Found %d paths that are longer than 248 chars.\n" .
+                "Azure does not support longer path names.\n" .
+                "You should come up with a solution to fix this." .
+                count($found)
+            ));
             exit(1);
         }
+        $output->writeln("None found, continuing with building package.");
     }
 }
 
