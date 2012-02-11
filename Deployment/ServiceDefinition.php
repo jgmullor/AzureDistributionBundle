@@ -92,27 +92,30 @@ class ServiceDefinition
         }
     }
 
-    private function getValues($tagName, $attributeName, $keyName = null)
+    private function getValues($tagName, $attributeName)
     {
         $nodes = $this->dom->getElementsByTagName($tagName);
         $values = array();
         foreach ($nodes as $node) {
-            if ($keyName === null) {
-                $values[] = $node->getAttribute($attributeName);
-            } else {
-                $values[$node->getAttribute($keyName)] = $node->getAttribute($attributeName);
-            }
+            $values[] = $node->getAttribute($attributeName);
         }
         return $values;
     }
 
     public function getPhysicalDirectories()
     {
-        $sites = $this->getValues('Site', 'physicalDirectory', 'Name');
-        $dir = dirname($this->serviceDefinitionFile);
-        return array_map(function($site) use ($dir) {
-            return realpath($dir . "/" . $site);
-        }, $sites);
+        $nodes = $this->dom->getElementsByTagName('WebRole');
+        $dirs = array();
+        foreach ($nodes as $node) {
+            $sites = $node->getElementsByTagName('Site');
+            if (count($sites)) {
+                $dirs[$node->getAttribute('name')] = realpath(
+                    dirname($this->serviceDefinitionFile) .
+                    $sites->item(0)->getAttribute('physicalDirectory')
+                );
+            }
+        }
+        return $dirs;
     }
 
     public function getPhysicalDirectory($name)
@@ -124,37 +127,53 @@ class ServiceDefinition
         return $dirs[$name];
     }
 
-    public function createRoleFiles()
+    public function createRoleFiles($outputDir)
     {
+        $outputDir = realpath($outputDir);
         $s = microtime(true);
         $physicalDirs = $this->getPhysicalDirectories();
         $found = array();
         $s = microtime(true);
         $seenDirs = array();
-        foreach ($physicalDirs as $dir) {
+        $longPaths = array();
+        foreach ($physicalDirs as $roleName => $dir) {
             $dir = realpath($dir);
             if (isset($seenDirs[$dir])) {
                 continue;
             }
             $seenDirs[$dir] = true;
 
+            $roleFile = "";
             $finder = new Finder();
             $length = strlen($dir) + 1;
             $iterator = $finder->files()
                                ->in($dir)
+                               ->ignoreDotFiles(true)
                                ->ignoreVCS(true)
                                ->exclude('build')
                                ->exclude('cache')
                                ->exclude('logs')
                                ->exclude('Tests')
                                ->exclude('tests')
-                               ->exclude('docs');
-            $roleFile = "";
+                               ->exclude('docs')
+                               ->exclude('test-suite')
+                               ->exclude('role_template')
+                               ->notName('*.swp')
+                            ;
+
             foreach ($iterator as $file) {
                 $path = substr($file, $length);
+                $checkPath = $outputDir . "/roles/$roleName/approot/" . $path;
+                if (strlen($checkPath) >= 248) {
+                    $longPaths[] = $checkPath . " (". strlen($checkPath) . ")";
+                }
                 $roleFile .= $path .";".$path."\n";
             }
             file_put_contents($dir . "/roleFiles.txt", $roleFile);
+        }
+
+        if ($longPaths) {
+            throw new \RuntimeException("Paths are too long. Not more than 248 chars per directory and 260 per file name allowed:\n" . implode("\n", $longPaths));
         }
     }
 }

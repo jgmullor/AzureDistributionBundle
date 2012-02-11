@@ -79,7 +79,7 @@ class AzureSDKCommandBuilder
 
     private function getRoleArgument($roleName, $serviceDefinition)
     {
-        $roleFile = $serviceDefinition->getPhysicalDirectory($roleName);
+        $roleFile = $serviceDefinition->getPhysicalDirectory($roleName) . '/roleFiles.txt';
         if (file_exists($roleFile)) {
             return sprintf('/roleFiles:%s;%s', $roleName, $roleFile);
         }
@@ -115,7 +115,6 @@ class AzureSDKCommandBuilder
             $script .= ' '.implode(' ', array_map(array($this, 'escape'), $arguments));
         }
         $script = 'cmd /V:ON /E:ON /C "'.$script.'"';
-        var_dump($script);
         return new Process($script, null, null, null, 60, $options);
     }
 

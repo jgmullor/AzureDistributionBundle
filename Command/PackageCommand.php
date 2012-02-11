@@ -33,8 +33,8 @@ class PackageCommand extends ContainerAwareCommand
             ->setName('windowsazure:package')
             ->setDescription('Packages this symfony application for deployment on Windows Azure.')
             ->addOption('dev-fabric', null, InputOption::VALUE_NONE, 'Build package for dev-fabric? This will only copy the files and startup the Azure Simulator.')
-            ->addOption('long-path-detection', null, InputOption::VALUE_NONE, 'Long path detection will check for file-paths >= 248 chars which are not allowed.')
             ->addOption('output-dir', null, InputOption::VALUE_REQUIRED, 'Output directory. Will override the default directory configured as approot/build.')
+            ->addOption('skip-role-file-generation', null, InputOption::VALUE_NONE, 'Skip the generation of role files for the /roleFiles argument of cspack.exe. This will reuse old existing files.')
         ;
     }
 
@@ -53,13 +53,7 @@ class PackageCommand extends ContainerAwareCommand
 
         $serviceDefinition = $deployment->getServiceDefinition();
 
-        $output->writeln('Starting to compile file manifests for each physical directory.');
-        $s = microtime(true);
-        $serviceDefinition->createRoleFiles();
-        $output->writeln('..compiled file-manifets. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
-
-        $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
-        $outputDir = $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build';
+        $outputDir = realpath( $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build' );
         $output->writeln("Building Azure SDK packages into directory:");
         $output->writeln($outputDir);
 
@@ -73,7 +67,15 @@ class PackageCommand extends ContainerAwareCommand
             throw new \RuntimeException("Output-directory is not writable!");
         }
 
+        if ( ! $input->getOption('skip-role-file-generation')) {
+            $output->writeln('Starting to compile file manifests for each physical directory.');
+            $s = microtime(true);
+            $serviceDefinition->createRoleFiles($outputDir);
+            $output->writeln('..compiled file-manifets. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
+        }
+
         $output->writeln('Calling cspack.exe');
+        $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
         $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $outputDir, $input->getOption('dev-fabric'));
         $process = $azureCmdBuilder->getProcess($args);// @todo: Update to ProcessBuilder in 2.1 Symfony
         $process->run();
