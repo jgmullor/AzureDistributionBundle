@@ -10,9 +10,9 @@ $phpExtensionsPath = $phpExecutable.DirectoryName + "\ext"
 $phpIniFile = $phpConfiguration.PHPIniFilePath
 	
 # Get PHP installation override details
-$myExtensionsPath = "..\php\ext"
+$myExtensionsPath = "..\app\azure\php\ext"
 $myExtensions = Get-ChildItem $myExtensionsPath | where {$_.Name.ToLower().EndsWith(".dll")}
-$myPhpIniFile = "..\php\php.ini"
+$myPhpIniFile = "..\app\azure\php\php.ini"
 	
 # Append PHP.ini directives
 if ((Test-Path $myPhpIniFile) -eq 'True') {
