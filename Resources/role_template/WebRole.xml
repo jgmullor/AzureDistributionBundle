@@ -16,7 +16,6 @@
                 </Variable>
             </Environment>
         </Task>
-        <Task commandLine="monitor-environment.cmd" executionContext="elevated" taskType="background" />
         <Task commandLine="symfony_cache_clear.cmd" executionContext="elevated" taskType="simple" />
     </Startup>
     <Endpoints>
