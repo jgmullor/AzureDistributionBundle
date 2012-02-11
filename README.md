@@ -2,11 +2,11 @@
 
 Bundle provides tools to deploy a Symfony2 based application on Windows Azure.
 
-    Note: This bundle is in very early development and will change. The functionality mentioned above is not yet implemented fully.
+    Note: This bundle is in very early development and will change. The functionality mentioned above is not yet implemented. Implemented functionality may not be working correctly yet.
 
 ## Architecture
 
-Cloud-Services put constraints on how an application is allowed to run on their hosted services. This is done for security and scalability reasons. The following architecture constraints will be solved by this bundle:
+Cloud-Services put constraints on how an application is allowed to run on their hosted services. This is done for security and scalability reasons. The default Symfony Sandbox won't run on Azure without some slight changes. The Azure deployment related tasks will be solved by this bundle:
 
 * Startup tasks for cache:clear/cache:warmup are invoked for new instances.
 * Writing cache and log-files into a writable directory.
@@ -44,20 +44,30 @@ The Azure kernel can be used to set the temporary and cache directories to `sys_
 
     class AppKernel extends AzureKernel
     {
+        $bundles = array(
+            // ...
+            new WindowsAzure\DistributionBundle\WindowsAzureDistributionBundle();
+            // ...
+        );
+
         // keep the old code here.
+
+        return $bundles;
     }
 
 ## Packaging
+
+Before you start generating Azure packages you have to create the basic infrastructure. This bundle will create a folder `app/azure` with a bunch of configuration and resource files that are necessary for deployment. To initialize this infrastructure call:
+
+    php app\console windowsazure:init
+
+The main configuration files are `app\azure\ServiceDefinition.csdef` and `app\aure\ServiceConfiguration.cscfg`. They will be created with one Azure role "SymfonyOnAzure.Web", which will is configured as an HTTP application.
 
 To generate an Azure package just invoke:
 
     php app\console windowsazure:package
 
-On first time usage the bundle will create a folder `app\azure` for you with the default implementation of the `ServiceDefinition.csdef` and `ServiceConfiguration.cscfg` files which are neccessary to configure Azure to host your application.
-
-Additionally some files will be moved to the `bin` folder of your application and a bunch of files will be moved to `app\azure\resources` and `app\azure\php`.
-
-The command will then try and generate an Azure package for you given this configurations.
+The command will then try and generate an Azure package for you given the current azure Configuration files. You can re-run this script as often as you want.
 
 In the future there will also be a second command that will use the generated package and deploy it to Azure directly using the management API.
 
