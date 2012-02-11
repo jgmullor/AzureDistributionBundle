@@ -62,6 +62,34 @@ class ServiceDefinition
         return $this->getValues('WorkerRole', 'name');
     }
 
+    public function getRoleNames()
+    {
+        return array_merge($this->getWebRoleNames(), $this->getWorkerRoleNames());
+    }
+
+    public function addWebRole($name)
+    {
+        $existingRoles = $this->getRoleNames();
+        if (in_array($name, $existingRoles)) {
+            throw new \RuntimeException(sprintf("Role with name %s already exists.", $name));
+        }
+
+        $webrole = new \DOMDocument('1.0', 'UTF-8');
+        $webrole->load(__DIR__ . '/../Resources/role_template/WebRole.xml');
+
+        $roles = $webrole->getElementsByTagName('WebRole');
+        $webRoleNode = $roles->item(0);
+        $webRoleNode->setAttribute('name', $name);
+
+        $webRoleNode = $this->dom->importNode($webRoleNode, true);
+        $this->dom->documentElement->appendChild($webRoleNode);
+
+        if ($this->dom->save($this->serviceDefinitionFile) === false) {
+            throw new \RuntimeException(sprintf("Could not write ServiceDefinition to '%s'",
+                $this->serviceDefinitionFile));
+        }
+    }
+
     private function getValues($tagName, $attributeName)
     {
         $nodes = $this->dom->getElementsByTagName($tagName);

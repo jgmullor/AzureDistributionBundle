@@ -39,8 +39,16 @@ class PackageCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln("Loading ServiceDefinition.csdef file..");
-        $serviceDefinition = $this->getContainer()->get('windows_azure_distribution.config.service_definition');
+        $output->writeln("Loading Azure Deployment details..");
+        $deployment = $this->getContainer()->get('windows_azure_distribution.deployment');
+
+        if ( ! $deployment->exists()) {
+            $output->writeln('<error>No Azure deployment details found</error>');
+            $output->writeln('Execute the windowsazure:init command to create the basic structure for a deployment.');
+            return;
+        }
+
+        $serviceDefinition = $deployment->getServiceDefinition();
 
         if ($input->getOption('long-path-detection')) {
             $this->detectTooLongPathNames($serviceDefinition, $output);

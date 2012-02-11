@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebRole name="" enableNativeCodeExecution="true">
+    <Sites>
+        <Site name="Web" physicalDirectory="./../../">
+            <Bindings>
+                <Binding name="Endpoint1" endpointName="HttpEndpoint" />
+            </Bindings>
+        </Site>
+    </Sites>
+    <Startup>
+        <Task commandLine="add-environment-variables.cmd" executionContext="elevated" taskType="simple" />
+        <Task commandLine="install-php.cmd" executionContext="elevated" taskType="simple">
+            <Environment>
+                <Variable name="EMULATED">
+                    <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+                </Variable>
+            </Environment>
+        </Task>
+        <Task commandLine="monitor-environment.cmd" executionContext="elevated" taskType="background" />
+        <Task commandLine="symfony_cache_clear.cmd" executionContext="elevated" taskType="simple" />
+    </Startup>
+    <Endpoints>
+        <InputEndpoint name="HttpEndpoint" protocol="http" port="80" />
+    </Endpoints>
+    <Imports>
+        <Import moduleName="Diagnostics"/>
+    </Imports>
+    <ConfigurationSettings>
+    </ConfigurationSettings>
+</WebRole>

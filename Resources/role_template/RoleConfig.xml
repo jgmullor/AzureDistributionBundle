@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Role name="">
+    <Instances count="2" />
+    <ConfigurationSettings>
+        <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
+    </ConfigurationSettings>
+</Role>
