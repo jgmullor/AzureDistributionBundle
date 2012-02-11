@@ -52,9 +52,11 @@ class PackageCommand extends ContainerAwareCommand
         $output->writeln('');
 
         $serviceDefinition = $deployment->getServiceDefinition();
+
+        $output->writeln('Starting to compile file manifests for each physical directory.');
         $s = microtime(true);
         $serviceDefinition->createRoleFiles();
-        $output->writeln('Compiled file-manifets. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
+        $output->writeln('..compiled file-manifets. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
 
         $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
         $outputDir = $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build';
@@ -71,6 +73,7 @@ class PackageCommand extends ContainerAwareCommand
             throw new \RuntimeException("Output-directory is not writable!");
         }
 
+        $output->writeln('Calling cspack.exe');
         $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $outputDir, $input->getOption('dev-fabric'));
         $process = $azureCmdBuilder->getProcess($args);// @todo: Update to ProcessBuilder in 2.1 Symfony
         $process->run();
