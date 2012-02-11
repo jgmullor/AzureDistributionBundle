@@ -13,6 +13,8 @@
 
 namespace WindowsAzure\DistributionBundle\Deployment;
 
+use Symfony\Component\Finder\Finder;
+
 /**
  * Wraps the ServiceDefinition.csdef file and allows convenient access.
  *
@@ -90,23 +92,70 @@ class ServiceDefinition
         }
     }
 
-    private function getValues($tagName, $attributeName)
+    private function getValues($tagName, $attributeName, $keyName = null)
     {
         $nodes = $this->dom->getElementsByTagName($tagName);
         $values = array();
         foreach ($nodes as $node) {
-            $values[] = $node->getAttribute($attributeName);
+            if ($keyName === null) {
+                $values[] = $node->getAttribute($attributeName);
+            } else {
+                $values[$node->getAttribute($keyName)] = $node->getAttribute($attributeName);
+            }
         }
         return $values;
     }
 
     public function getPhysicalDirectories()
     {
-        $sites = $this->getValues('Site', 'physicalDirectory');
+        $sites = $this->getValues('Site', 'physicalDirectory', 'Name');
         $dir = dirname($this->serviceDefinitionFile);
         return array_map(function($site) use ($dir) {
-            return realpath($dir . "\\" . $site);
+            return realpath($dir . "/" . $site);
         }, $sites);
+    }
+
+    public function getPhysicalDirectory($name)
+    {
+        $dirs = $this->getPhysicalDirectories();
+        if (!isset($dirs[$name])) {
+            throw new \RuntimeException(sprintf("There exists no role named '%s'.", $name));
+        }
+        return $dirs[$name];
+    }
+
+    public function createRoleFiles()
+    {
+        $s = microtime(true);
+        $physicalDirs = $this->getPhysicalDirectories();
+        $found = array();
+        $s = microtime(true);
+        $seenDirs = array();
+        foreach ($physicalDirs as $dir) {
+            $dir = realpath($dir);
+            if (isset($seenDirs[$dir])) {
+                continue;
+            }
+            $seenDirs[$dir] = true;
+
+            $finder = new Finder();
+            $length = strlen($dir) + 1;
+            $iterator = $finder->files()
+                               ->in($dir)
+                               ->ignoreVCS(true)
+                               ->exclude('build')
+                               ->exclude('cache')
+                               ->exclude('logs')
+                               ->exclude('Tests')
+                               ->exclude('tests')
+                               ->exclude('docs');
+            $roleFile = "";
+            foreach ($iterator as $file) {
+                $path = substr($file, $length);
+                $roleFile .= $path .";".$path."\n";
+            }
+            file_put_contents($dir . "/roleFiles.txt", $roleFile);
+        }
     }
 }
 

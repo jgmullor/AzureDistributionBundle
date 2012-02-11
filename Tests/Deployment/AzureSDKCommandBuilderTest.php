@@ -24,9 +24,9 @@ class AzureSDKCommandBuilderTest extends \PHPUnit_Framework_TestCase
         $outputPath = "C:\output";
         $serviceDefFile = __DIR__ . '/_files/webrole_def.xml';
         $def = new ServiceDefinition($serviceDefFile);
-        $builder = new AzureSDKCommandBuilder($rootPath, $outputPath);
+        $builder = new AzureSDKCommandBuilder($rootPath);
 
-        $cmd = $builder->buildPackageCmd($def, true);
+        $cmd = $builder->buildPackageCmd($def, $outputPath, true);
         $this->assertEquals('cspack.exe '.$serviceDefFile.' /role:TestRole;C:\symfony\app /out:C:\output /copyOnly', $cmd);
     }
 }

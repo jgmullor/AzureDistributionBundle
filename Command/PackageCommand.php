@@ -32,8 +32,9 @@ class PackageCommand extends ContainerAwareCommand
         $this
             ->setName('windowsazure:package')
             ->setDescription('Packages this symfony application for deployment on Windows Azure.')
-            ->addOption('dev-fabric', null, InputOption::VALUE_OPTIONAL, 'Build package for dev-fabric? Defaults to yes.')
-            ->addOption('long-path-detection', null, InputOption::VALUE_OPTIONAL, 'Long path detection will check for file-paths >= 248 chars which are not allowed.')
+            ->addOption('dev-fabric', null, InputOption::VALUE_NONE, 'Build package for dev-fabric? This will only copy the files and startup the Azure Simulator.')
+            ->addOption('long-path-detection', null, InputOption::VALUE_NONE, 'Long path detection will check for file-paths >= 248 chars which are not allowed.')
+            ->addOption('output-dir', null, InputOption::VALUE_REQUIRED, 'Output directory. Will override the default directory configured as approot/build.')
         ;
     }
 
@@ -47,18 +48,30 @@ class PackageCommand extends ContainerAwareCommand
             $output->writeln('Execute the windowsazure:init command to create the basic structure for a deployment.');
             return;
         }
+        $output->writeln('..done.');
+        $output->writeln('');
 
         $serviceDefinition = $deployment->getServiceDefinition();
-
-        if ($input->getOption('long-path-detection')) {
-            $this->detectTooLongPathNames($serviceDefinition, $output);
-        }
+        $s = microtime(true);
+        $serviceDefinition->createRoleFiles();
+        $output->writeln('Compiled file-manifets. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
 
         $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
+        $outputDir = $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build';
         $output->writeln("Building Azure SDK packages into directory:");
-        $output->writeln($azureCmdBuilder->getOutputDir());
+        $output->writeln($outputDir);
 
-        $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $input->getOption('dev-fabric'));
+        if ( ! file_exists($outputDir) ) {
+            $fs = new Filesystem();
+            $fs->mkdir($outputDir, 0777);
+            $output->writeln('<info>Output directory created, because it didn\'t exist yet.</info>');
+        }
+
+        if ( ! is_writeable($outputDir) ) {
+            throw new \RuntimeException("Output-directory is not writable!");
+        }
+
+        $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $outputDir, $input->getOption('dev-fabric'));
         $process = $azureCmdBuilder->getProcess($args);// @todo: Update to ProcessBuilder in 2.1 Symfony
         $process->run();
 
@@ -66,37 +79,7 @@ class PackageCommand extends ContainerAwareCommand
             throw new \RuntimeException($process->getErrorOutput() ?: $process->getOutput());
         }
 
-        $output->writeln( $process->getOutput() );
-    }
-
-    protected function detectTooLongPathNames($serviceDefinition, $output)
-    {
-        $output->writeln("Detecting path that are longer than 248 chars.");
-        $output->writeln("This can take some minutes...\n");
-        $physicalDirs = $serviceDefinition->getPhysicalDirectories();
-        $found = array();
-        foreach ($physicalDirs as $dir) {
-            $finder = new Finder();
-            $iterator = $finder->files()->in($dir);
-
-            foreach ($iterator as $file) {
-                if (strlen($file->getRealpath()) >= 200) {
-                    $output->writeln(sprintf("* %s (%d)", $file->getRealpath(), strlen($file->getRealpath())));
-                    $found[] = $file->getRealpath();
-                }
-            }
-        }
-
-        if ($found) {
-            $output->writeln(sprintf(
-                "Found %d paths that are longer than 248 chars.\n" .
-                "Azure does not support longer path names.\n" .
-                "You should come up with a solution to fix this." .
-                count($found)
-            ));
-            exit(1);
-        }
-        $output->writeln("None found, continuing with building package.");
+        $output->writeln( trim($process->getOutput()) );
     }
 }
 

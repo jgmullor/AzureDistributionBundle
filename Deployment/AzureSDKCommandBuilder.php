@@ -37,10 +37,9 @@ class AzureSDKCommandBuilder
      */
     private $binDir;
 
-    public function __construct($rootDir, $outputDir, $binDir = null)
+    public function __construct($rootDir, $binDir = null)
     {
         $this->rootDir = $rootDir;
-        $this->outputDir = $outputDir;
         $this->binDir = $binDir ?: $this->getAzureSdkBinaryFolder();
     }
 
@@ -53,28 +52,38 @@ class AzureSDKCommandBuilder
      * Build Packaging command
      *
      * @param ServiceDefinition $serviceDefinition
+     * @param string $outputDir
      * @param bool $isDevFabric
      * @return array
      */
-    public function buildPackageCmd(ServiceDefinition $serviceDefinition, $isDevFabric)
+    public function buildPackageCmd(ServiceDefinition $serviceDefinition, $outputDir, $isDevFabric)
     {
         $args = array (
             $this->binDir . 'cspack.exe',
             $serviceDefinition->getPath()
         );
         foreach ($serviceDefinition->getWebRoleNames() as $roleName) {
-            $args[] = sprintf('/role:%s;%s', $roleName, $this->rootDir); // TODO: Only standard layout
+            $args[] = $this->getRoleArgument($roleName, $serviceDefinition);
         }
         foreach ($serviceDefinition->getWorkerRoleNames() as $roleName) {
-            $args[] = sprintf('/role:%s;%s', $roleName, $this->rootDir); // TODO: Only standard layout
+            $args[] = $this->getRoleArgument($roleName, $serviceDefinition);
         }
-        $args[] = sprintf('/out:%s', $this->outputDir);
+        $args[] = sprintf('/out:%s', $outputDir);
 
         if ($isDevFabric) {
             $args[] = '/copyOnly';
         }
 
         return $args;
+    }
+
+    private function getRoleArgument($roleName, $serviceDefinition)
+    {
+        $roleFile = $serviceDefinition->getPhysicalDirectory($roleName);
+        if (file_exists($roleFile)) {
+            return sprintf('/roleFiles:%s;%s', $roleName, $roleFile);
+        }
+        return sprintf('/role:%s', $roleName);
     }
 
     private function getAzureSdkBinaryFolder()
@@ -103,11 +112,19 @@ class AzureSDKCommandBuilder
 
         $script = '"'.$command.'"';
         if ($arguments) {
-            $script .= ' '.implode(' ', array_map('escapeshellarg', $arguments));
+            $script .= ' '.implode(' ', array_map(array($this, 'escape'), $arguments));
         }
-
         $script = 'cmd /V:ON /E:ON /C "'.$script.'"';
+        var_dump($script);
         return new Process($script, null, null, null, 60, $options);
+    }
+
+    private function escape($element)
+    {
+        if (strpos($element, '/out:') === 0) {
+            return $element;
+        }
+        return escapeshellarg($element);
     }
 }
 

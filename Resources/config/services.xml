@@ -19,7 +19,6 @@
 
         <service id="windows_azure_distribution.deployment.azure_sdk_command_builder" class="%windows_azure_distribution.deployment.azure_sdk_command_builder.class%">
             <argument>%windows_azure_distribution.config.application_root%</argument>
-            <argument>%kernel.cache_dir%</argument>
         </service>
 
         <service id="windows_azure_distribution.deployment" class="%windows_azure_distribution.deployment.class%">
