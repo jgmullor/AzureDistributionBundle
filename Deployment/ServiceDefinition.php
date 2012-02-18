@@ -33,9 +33,14 @@ class ServiceDefinition
     private $dom;
 
     /**
+     * @var array
+     */
+    private $roleFiles = array();
+
+    /**
      * @param string $serviceDefinitionFile
      */
-    public function __construct($serviceDefinitionFile)
+    public function __construct($serviceDefinitionFile, array $roleFiles = array())
     {
         if (!file_exists($serviceDefinitionFile)) {
             throw new \InvalidArgumentException(sprintf(
@@ -47,6 +52,31 @@ class ServiceDefinition
         $this->serviceDefinitionFile = $serviceDefinitionFile;
         $this->dom = new \DOMDocument('1.0', 'UTF-8');
         $this->dom->load($this->serviceDefinitionFile);
+
+        $this->mergeRoleFilesConfig($roleFiles);
+    }
+
+    private function mergeRoleFilesConfig($roleFiles)
+    {
+        $this->roleFiles = array(
+            'ignoreVCS' => (isset($roleFiles['ignoreVCS'])) ? $roleFiles['ignoreVCS'] : true,
+            'exclude' => array('build', 'cache', 'logs', 'tests', 'Tests', 'docs', 'test-suite', 'role_template'),
+            'notName' => array('#(.*)\.swp$#')
+        );
+        if (isset($roleFiles['exclude'])) {
+            $this->roleFiles['exclude'] = array_merge($this->roleFileſ['exclude'], $roleFiles);
+        }
+        if (isset($roleFiles['include'])) {
+            foreach ($roleFiles['include'] as $include) {
+                $key = array_search($include, $this->roleFiles['exclude']);
+                if ($key !== false) {
+                    unset($this->roleFiles[$key]);
+                }
+            }
+        }
+        if (isset($roleFiles['ignorePatterns'])) {
+            $this->roleFiles['notName'] = array_merge($this->roleFiles['notName'], $roleFiles['ignorePatterns']);
+        }
     }
 
     public function getPath()
@@ -127,6 +157,16 @@ class ServiceDefinition
         return $dirs[$name];
     }
 
+    /**
+     * Create the role files for this service definition.
+     *
+     * A role file is a semicolon seperated list of target and destination
+     * paths. Only these files are then copied during the cspack.exe process to
+     * the target deployment directory or package file.
+     *
+     * @param string $outputDir
+     * @return void
+     */
     public function createRoleFiles($outputDir)
     {
         $outputDir = realpath($outputDir);
@@ -138,43 +178,84 @@ class ServiceDefinition
         $longPaths = array();
         foreach ($physicalDirs as $roleName => $dir) {
             $dir = realpath($dir);
+            $roleFilePath = sprintf('%s/%s.roleFiles.txt', $dir, $roleName);
+
             if (isset($seenDirs[$dir])) {
+                // we have seen this directory already, just copy the known
+                // file with a new role file name.
+                copy($seenDirs[$dir], $roleFilePath);
                 continue;
             }
-            $seenDirs[$dir] = true;
+            $seenDirs[$dir] = $roleFilePath;
+            $roleFile = $this->computeRoleFileContents($dir, $roleName, $outputDir);
 
-            $roleFile = "";
-            $finder = new Finder();
-            $length = strlen($dir) + 1;
-            $iterator = $finder->files()
-                               ->in($dir)
-                               ->ignoreDotFiles(true)
-                               ->ignoreVCS(true)
-                               ->exclude('build')
-                               ->exclude('cache')
-                               ->exclude('logs')
-                               ->exclude('Tests')
-                               ->exclude('tests')
-                               ->exclude('docs')
-                               ->exclude('test-suite')
-                               ->exclude('role_template')
-                               ->notName('*.swp')
-                            ;
-
-            foreach ($iterator as $file) {
-                $path = substr($file, $length);
-                $checkPath = $outputDir . "/roles/$roleName/approot/" . $path;
-                if (strlen($checkPath) >= 248) {
-                    $longPaths[] = $checkPath . " (". strlen($checkPath) . ")";
-                }
-                $roleFile .= $path .";".$path."\n";
-            }
-            file_put_contents($dir . "/roleFiles.txt", $roleFile);
+            file_put_contents($roleFilePath, $roleFile);
         }
 
         if ($longPaths) {
             throw new \RuntimeException("Paths are too long. Not more than 248 chars per directory and 260 per file name allowed:\n" . implode("\n", $longPaths));
         }
+    }
+
+    /**
+     * Compute the roleFiles.txt content that is necessary for a given role.
+     *
+     * @param string $dir
+     * @param string $roleName
+     * @param string $outputPath
+     * @return string
+     */
+    private function computeRoleFileContents($dir, $roleName, $outputDir)
+    {
+        $roleFile = "";
+        $iterator = $this->getIterator($dir);
+
+        // optimization to inline vendor role files. Since vendor files
+        // never change during development, their list can be computed
+        // during vendor initialization (composer or bin/vendors scripts)
+        // and does not need to be reperformed.
+        if (file_exists($dir . '/vendor/azureRoleFiles.txt')) {
+            $roleFile .= file_get_contents($dir . '/vendor/azureRoleFiles.txt');
+        }
+
+        $length = strlen($dir) + 1;
+        foreach ($iterator as $file) {
+            $path = str_replace(DIRECTORY_SEPARATOR, "\\", substr($file, $length));
+            $checkPath = sprintf('%s/roles/%s/approot/%s', $outputDir, $roleName, $path);
+            if (strlen($checkPath) >= 248) {
+                $longPaths[] = $checkPath . " (". strlen($checkPath) . ")";
+            }
+            $roleFile .= $path .";".$path."\n";
+        }
+        return $roleFile;
+    }
+
+    private function getIterator($dir)
+    {
+        $dirs = new Finder();
+        $subdirs = array();
+        foreach ($dirs->directories()->in($dir)->depth(0) as $subdir) {
+            $subdir = (string)$subdir;
+            $subdirs[basename($subdir)] = $subdir;
+        }
+
+        if (file_exists($dir . '/vendor/azureRoleFiles.txt')) {
+            unset($subdirs["vendor"]);
+        }
+
+        $finder = new Finder();
+        $iterator = $finder->files()
+                           ->in($subdirs)
+                           ->ignoreDotFiles(false)
+                           ->ignoreVCS($this->roleFiles['ignoreVCS']);
+        foreach ($this->roleFiles['exclude'] as $exclude) {
+            $iterator->exclude($exclude);
+        }
+        foreach ($this->roleFiles['notName'] as $notName) {
+            $iterator->notName($notName);
+        }
+
+        return $iterator;
     }
 }
 

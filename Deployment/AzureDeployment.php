@@ -45,13 +45,19 @@ class AzureDeployment
     private $serviceConfiguration;
 
     /**
+     * @var array
+     */
+    private $options;
+
+    /**
      * @param string $configDir Directory with Azure specific configuration
      * @param string $binDir Directory where binaries are placed.
      */
-    public function __construct($configDir, $binDir)
+    public function __construct($configDir, $binDir, array $options = array())
     {
         $this->configDir = $configDir;
         $this->binDir = $binDir;
+        $this->options = $options;
     }
 
     /**
@@ -102,7 +108,8 @@ class AzureDeployment
     public function getServiceDefinition()
     {
         if ( ! $this->serviceDefinition) {
-            $this->serviceDefinition = new ServiceDefinition($this->configDir . '/ServiceDefinition.csdef');
+            $roleFiles = isset($this->config['roleFiles']) ? $this->config['roleFiles'] : array();
+            $this->serviceDefinition = new ServiceDefinition($this->configDir . '/ServiceDefinition.csdef', $roleFiles);
         }
         return $this->serviceDefinition;
     }

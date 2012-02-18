@@ -79,9 +79,9 @@ class AzureSDKCommandBuilder
 
     private function getRoleArgument($roleName, $serviceDefinition)
     {
-        $roleFile = $serviceDefinition->getPhysicalDirectory($roleName) . '/roleFiles.txt';
-        if (file_exists($roleFile)) {
-            return sprintf('/roleFiles:%s;%s', $roleName, $roleFile);
+        $roleFilePath = sprintf('%s/%s.roleFiles.txt', $serviceDefinition->getPhysicalDirectory($roleName), $roleName);
+        if (file_exists($roleFilePath)) {
+            return sprintf('/roleFiles:%s;%s', $roleName, $roleFilePath);
         }
         return sprintf('/role:%s', $roleName);
     }
