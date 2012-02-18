@@ -8,10 +8,14 @@ Bundle provides tools to deploy a Symfony2 based application on Windows Azure.
 
 Cloud-Services put constraints on how an application is allowed to run on their hosted services. This is done for security and scalability reasons. The default Symfony Sandbox won't run on Azure without some slight changes. The Azure deployment related tasks will be solved by this bundle:
 
-* Startup tasks for cache:clear/cache:warmup are invoked for new instances.
-* Writing cache and log-files into a writable directory.
+* Command for packaging applications for Windows Azure (Done)
+* Startup tasks for cache:clear/cache:warmup are invoked for new instances. (Done)
+* Writing cache and log-files into a writable directory. (Done)
 * Distributed sessions (through PDO or Windows Azure Table)
 * Deploying assets to Azure Blob Storage
+* Aid for generation remote desktop usables instances and other common configuration options for ServiceDefinition.csdef and ServiceConfiguration.cscfg
+* Wrapper API for access to Azure Globals such as RoleId etc.
+* Logging to a central server/blob storage.
 
 ## Azure Roles and Symfony applications
 
@@ -23,19 +27,23 @@ Dividing the code that is used on a worker or a web role for Azure will amount t
 
 ## Installation
 
-Add this package to your composer.json:
+For [Composer](http://www.packagist.org)-based application, add this package to your composer.json:
 
+    ```javascript
     {
         "require": {
             "beberlei/azure-distribution-bundle": "*"
         }
     }
+    ```
+
+For a 'bin/vendors' based application add the Git path to your 'deps' file.
 
 ## Azure Kernel
 
 The Azure kernel can be used to set the temporary and cache directories to `sys_get_tempdir()` on production. These are the only writable directories for the webserver on Azure.
 
-    @@@ php
+    ```php
     <?php
 
     use Symfony\Component\HttpKernel\Kernel;
@@ -54,6 +62,9 @@ The Azure kernel can be used to set the temporary and cache directories to `sys_
 
         return $bundles;
     }
+    ```
+
+This feature is totally optional. You can make the necessary modifications yourself to get the application running on Azure by pointing the log and cache directory to `sys_get_temp_dir()`.
 
 ## Packaging
 
@@ -61,13 +72,47 @@ Before you start generating Azure packages you have to create the basic infrastr
 
     php app\console windowsazure:init
 
-The main configuration files are `app\azure\ServiceDefinition.csdef` and `app\aure\ServiceConfiguration.cscfg`. They will be created with one Azure role "SymfonyOnAzure.Web", which will is configured as an HTTP application.
+The main configuration files are `app\azure\ServiceDefinition.csdef` and `app\aure\ServiceConfiguration.cscfg`. They will be created with one Azure role "Sf2Azure.Web", which will is configured as an HTTP application.
 
 To generate an Azure package just invoke:
 
     php app\console windowsazure:package
 
-The command will then try and generate an Azure package for you given the current azure Configuration files. You can re-run this script as often as you want.
+The command will then try and generate an Azure package for you given the current azure Configuration files. You can re-run this script as often as you want. The result will be generated into the 'build' directory of your application.
 
-In the future there will also be a second command that will use the generated package and deploy it to Azure directly using the management API.
+The deployment process (windowsazure:package) executes the following steps:
+
+1. For every role a list of all files to be deployed is generated into the file %RoleName.roleFiles.txt. These files will be used with the `/roleFiles` parameter of [cspack.exe](http://msdn.microsoft.com/en-us/library/windowsazure/gg432988.aspx). By default directories with the name 'tests', 'Tests', 'build', 'logs', 'cache', 'docs' and 'test-suite' are excluded from the deployment.
+
+For configuration of this process see the "Configure Packaging" section of the docs.
+
+Because compiling the roles file can take some time you can optimize this process. See the "Optimizing Packaging" section in the docs for this.
+
+2. cspack.exe is called with the appropriate parameters.
+
+3. If the --dev-fabric flag isset after package generation the Azure dev-fabric will be started.
+
+## Optimizing Packaging
+
+Packaging always compiles a list of files to deploy before the actual packaging takes place and cspack.exe is called. This list of files includes the vendor directory by default. The vendor directory contains the largest amount of code in your application and takes longest to search through. However vendor code is rather static. The only time files are updated here is when you call:
+
+1. php bin/vendors in Symfony 2.0.x
+2. composer update/install in Symfony starting 2.1
+
+You can hook in both vendor updating processes to directly generate a list of files once and re-use it whenever you call 'app\console windowsazure:package'. This can speedup this step of deployment by roughly 90%.
+
+To get this workin under Symfony 2.0.x put the following code into your 'bin/vendors' php script:
+
+    \WindowsAzure\DistributionBundle\Deployment\VendorRoleFilesListener::generateVendorRolesFile(__DIR__ . "/../vendor");
+
+In Symfony 2.1 and higher put the following block into your applications composer.json:
+
+    "scripts": {
+        "post-update-cmd": "WindowsAzure\\DistributionBundle\\Deployment\\VendorRoleFilesListener::listenPostInstallUpdate",
+        "post-install-cmd": "WindowsAzure\\DistributionBundle\\Deployment\\VendorRoleFilesListener::listenPostInstallUpdate"
+    }
+
+## Configure Packaging
+
+..
 
