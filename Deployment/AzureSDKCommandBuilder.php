@@ -77,6 +77,26 @@ class AzureSDKCommandBuilder
         return $args;
     }
 
+    public function buildDevStoreStartCmd()
+    {
+        return array($this->binDir . 'csrun.exe', '/devstore:start');
+    }
+
+    public function buildDevFabricStartCmd()
+    {
+        return array($this->binDir . 'csrun.exe', '/devfabric:start');
+    }
+
+    public function buildDevFabricRemoveAllCmd()
+    {
+        return array($this->binDir . 'csrun.exe', '/removeAll');
+    }
+
+    public function buildDevRunPackage($packagePath, ServiceConfiguration $serviceConfiguration)
+    {
+        return array($this->bindDir . 'csrun.exe', '/run:' . $packagePath . ';' . $serviceConfiguration->getPath(), '/launchBrowser');
+    }
+
     private function getRoleArgument($roleName, $serviceDefinition)
     {
         $roleFilePath = sprintf('%s/%s.roleFiles.txt', $serviceDefinition->getPhysicalDirectory($roleName), $roleName);

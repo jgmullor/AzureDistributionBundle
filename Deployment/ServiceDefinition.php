@@ -220,6 +220,9 @@ class ServiceDefinition
 
         $length = strlen($dir) + 1;
         foreach ($iterator as $file) {
+            if (is_dir($file)) {
+                continue;
+            }
             $path = str_replace(DIRECTORY_SEPARATOR, "\\", substr($file, $length));
             $checkPath = sprintf('%s/roles/%s/approot/%s', $outputDir, $roleName, $path);
             if (strlen($checkPath) >= 248) {
@@ -236,7 +239,9 @@ class ServiceDefinition
         $subdirs = array();
         foreach ($dirs->directories()->in($dir)->depth(0) as $subdir) {
             $subdir = (string)$subdir;
-            $subdirs[basename($subdir)] = $subdir;
+            if (!in_array(basename($subdir), $this->roleFiles['exclude'])) {
+                $subdirs[basename($subdir)] = $subdir;
+            }
         }
 
         if (file_exists($dir . '/vendor/azureRoleFiles.txt')) {

@@ -47,6 +47,11 @@ class ServiceConfiguration
         $this->dom->load($this->serviceConfigurationFile);
     }
 
+    public function getPath()
+    {
+        return $this->serviceConfigurationFile;
+    }
+
     public function addRole($name)
     {
         $role = new \DOMDocument('1.0', 'UTF-8');

@@ -56,7 +56,8 @@ class VendorRoleFilesListener
         $dirName = basename($vendorDir);
 
         $finder = new Finder();
-        $finder->in($vendorDir)
+        $finder->files()
+               ->in($vendorDir)
                ->ignoreVCS(true)
                ->ignoreDotFiles(false)
                ->exclude('tests')
@@ -68,6 +69,9 @@ class VendorRoleFilesListener
         $length = strlen($vendorDir) + 1;
         $roleFile = "";
         foreach ($finder as $file) {
+            if (is_dir($file)) {
+                continue;
+            }
             $path = $dirName . '\\' . str_replace(DIRECTORY_SEPARATOR, "\\", substr($file, $length));
             $roleFile .= $path .";".$path."\n";
         }

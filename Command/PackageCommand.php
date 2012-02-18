@@ -53,30 +53,40 @@ class PackageCommand extends ContainerAwareCommand
 
         $serviceDefinition = $deployment->getServiceDefinition();
 
-        $outputDir = realpath( $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build' );
+        $outputDir = $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build';
         $output->writeln("Building Azure SDK packages into directory:");
         $output->writeln($outputDir);
 
-        if ( ! file_exists($outputDir) ) {
+        if ( !file_exists($outputDir) ) {
             $fs = new Filesystem();
             $fs->mkdir($outputDir, 0777);
             $output->writeln('<info>Output directory created, because it didn\'t exist yet.</info>');
         }
+        $outputDir = realpath($outputDir);
 
         if ( ! is_writeable($outputDir) ) {
             throw new \RuntimeException("Output-directory is not writable!");
         }
 
+        $outputFile = $outputDir . "/azure.cspkg";
+        if (file_exists($outputFile)) {
+            if (is_file($outputFile)) {
+                unlink($outputFile);
+            } else {
+                $this->rmdir($outputFile, true);
+            }
+        }
+
         if ( ! $input->getOption('skip-role-file-generation')) {
-            $output->writeln('Starting to compile file manifests for each physical directory.');
+            $output->writeln('Starting to compile role files for each physical directory.');
             $s = microtime(true);
-            $serviceDefinition->createRoleFiles($outputDir);
-            $output->writeln('..compiled file-manifets. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
+            $serviceDefinition->createRoleFiles($outputFile);
+            $output->writeln('..compiled role-files. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
         }
 
         $output->writeln('Calling cspack.exe');
         $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
-        $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $outputDir, $input->getOption('dev-fabric'));
+        $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $outputFile, $input->getOption('dev-fabric'));
         $process = $azureCmdBuilder->getProcess($args);// @todo: Update to ProcessBuilder in 2.1 Symfony
         $process->run();
 
@@ -85,6 +95,29 @@ class PackageCommand extends ContainerAwareCommand
         }
 
         $output->writeln( trim($process->getOutput()) );
+    }
+
+    private function rmdir($dir, $recursive = true)
+    {
+        if (!is_dir($dir)) {
+            throw new \InvalidArgumentException("No directory given.");
+        }
+
+        if ($recursive) {
+            $nodes = scandir($dir);
+            foreach ($nodes as $node) {
+                if ($node == "." || $node == "..") {
+                    continue;
+                } else if (is_dir($node)) {
+                    if (!$this->rmdir($node, true)) {
+                        throw new \RuntimeException("could not delete subnode.");
+                    }
+                } else if (is_file($node)) {
+                    unlink($node);
+                }
+            }
+        }
+        return rmdir($dir);
     }
 }
 
