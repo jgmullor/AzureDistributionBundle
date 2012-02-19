@@ -45,7 +45,7 @@ class InitCommand extends ContainerAwareCommand
         }
 
         $deployment->create();
-        $deployment->createRole('SymfonyOnAzure.Web');
+        $deployment->createRole('Sf2.Web');
 
         $output->writeln('<info>Created basic Azure structure and one WebRole "SymfonyWeb"</info>');
     }
