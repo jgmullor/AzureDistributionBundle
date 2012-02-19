@@ -73,7 +73,7 @@ class VendorRoleFilesListener
                 continue;
             }
             $path = $dirName . '\\' . str_replace(DIRECTORY_SEPARATOR, "\\", substr($file, $length));
-            $roleFile .= $path .";".$path."\n";
+            $roleFile .= $path .";".$path."\r\n";
         }
         file_put_contents($vendorDir."/azureRoleFiles.txt", $roleFile);
     }

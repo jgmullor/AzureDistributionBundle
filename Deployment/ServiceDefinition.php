@@ -228,8 +228,18 @@ class ServiceDefinition
             if (strlen($checkPath) >= 248) {
                 $longPaths[] = $checkPath . " (". strlen($checkPath) . ")";
             }
-            $roleFile .= $path .";".$path."\n";
+            $roleFile .= $path .";".$path."\r\n";
         }
+
+        // Special handling for Web.config files, either pick them from
+        // app/azure/$roleName.Web.config or $roleName.Web.config and rename
+        // them to just Web.config in the main directoy of the role.
+        if (file_exists($dir . "/app/azure/" . $roleName . ".Web.config")) {
+            $roleFile .= "app/azure/" . $roleName . ".Web.config;Web.config\r\n";
+        } else if (file_exists($dir . "/" . $roleName . ".Web.config")) {
+            $roleFile .= $roleName . ".Web.config;Web.config\r\n";
+        }
+
         return $roleFile;
     }
 

@@ -52,6 +52,7 @@ class PackageCommand extends ContainerAwareCommand
         $output->writeln('');
 
         $serviceDefinition = $deployment->getServiceDefinition();
+        $serviceConfiguration = $deployment->getServiceConfiguration();
 
         $outputDir = $input->getOption('output-dir') ?: $this->getContainer()->getParameter('windows_azure_distribution.config.application_root'). '/build';
         $output->writeln("Building Azure SDK packages into directory:");
@@ -84,7 +85,10 @@ class PackageCommand extends ContainerAwareCommand
             $output->writeln('..compiled role-files. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
         }
 
-        $output->writeln('Calling cspack.exe');
+        // Copy ServiceConfiguration to have it right next to cspkg file.
+        copy ($serviceConfiguration->getPath(), $outputDir . '/ServiceConfiguration.cscfg');
+
+        $output->writeln('Calling cspack.exe to build Azure Package:');
         $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
         $args = $azureCmdBuilder->buildPackageCmd($serviceDefinition, $outputFile, $input->getOption('dev-fabric'));
         $process = $azureCmdBuilder->getProcess($args);// @todo: Update to ProcessBuilder in 2.1 Symfony
@@ -95,6 +99,7 @@ class PackageCommand extends ContainerAwareCommand
         }
 
         $output->writeln( trim($process->getOutput()) );
+        $output->writeln('Completed.');
     }
 
     private function rmdir($dir, $recursive = true)
