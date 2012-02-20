@@ -14,10 +14,6 @@
     </parameters>
 
     <services>
-        <service id="windows_azure_distribution.config.service_definition" class="WindowsAzure\DistributionBundle\Deployment\ServiceDefinition">
-            <argument>%windows_azure_distribution.config.config_dir%/ServiceDefinition.csdef</argument>
-        </service>
-
         <service id="windows_azure_distribution.deployment.azure_sdk_command_builder" class="%windows_azure_distribution.deployment.azure_sdk_command_builder.class%">
             <argument>%windows_azure_distribution.config.application_root%</argument>
         </service>
@@ -25,6 +21,7 @@
         <service id="windows_azure_distribution.deployment" class="%windows_azure_distribution.deployment.class%">
             <argument>%windows_azure_distribution.config.config_dir%</argument>
             <argument>%windows_azure_distribution.config.bin_dir%</argument>
+            <argument>%windows_azure_distribution.config.deployment%</argument>
         </service>
     </services>
 </container>

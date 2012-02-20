@@ -64,7 +64,7 @@ class ServiceDefinition
             'notName' => array('#(.*)\.swp$#')
         );
         if (isset($roleFiles['exclude'])) {
-            $this->roleFiles['exclude'] = array_merge($this->roleFileſ['exclude'], $roleFiles);
+            $this->roleFiles['exclude'] = array_merge($this->roleFiles['exclude'], $roleFiles['exclude']);
         }
         if (isset($roleFiles['include'])) {
             foreach ($roleFiles['include'] as $include) {
@@ -214,7 +214,9 @@ class ServiceDefinition
         // never change during development, their list can be computed
         // during vendor initialization (composer or bin/vendors scripts)
         // and does not need to be reperformed.
-        if (file_exists($dir . '/vendor/azureRoleFiles.txt')) {
+        if (file_exists($dir . '/vendor/azureRoleFiles.txt') &&
+            ! in_array("vendor", $this->roleFiles['exclude'])) {
+
             $roleFile .= file_get_contents($dir . '/vendor/azureRoleFiles.txt');
         }
 

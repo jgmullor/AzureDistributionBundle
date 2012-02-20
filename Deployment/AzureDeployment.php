@@ -111,7 +111,7 @@ class AzureDeployment
     public function getServiceDefinition()
     {
         if ( ! $this->serviceDefinition) {
-            $roleFiles = isset($this->config['roleFiles']) ? $this->config['roleFiles'] : array();
+            $roleFiles = isset($this->options['roleFiles']) ? $this->options['roleFiles'] : array();
             $this->serviceDefinition = new ServiceDefinition($this->configDir . '/ServiceDefinition.csdef', $roleFiles);
         }
         return $this->serviceDefinition;

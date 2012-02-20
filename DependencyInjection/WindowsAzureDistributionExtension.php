@@ -34,7 +34,7 @@ class WindowsAzureDistributionExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('windows_azure_distribution.config.deployment', $config);
+        $container->setParameter('windows_azure_distribution.config.deployment', $config['deployment']);
     }
 }
 
