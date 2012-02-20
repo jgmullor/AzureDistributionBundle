@@ -1,10 +1,10 @@
 # WindowsAzure Distribution Bundle
 
-Stability: ALPHA
+Stability: PRE-ALPHA
 
-Bundle provides tools to deploy a Symfony2 based application on Windows Azure.
+Bundle provides tools to deploy a Symfony2 based application on Windows Azure. The idea is to plug this bundle into any existing Symfony2 application and get it running on Azure smoothly.
 
-    Note: This bundle is in very early development and will change. The functionality mentioned above is not yet implemented. Implemented functionality may not be working correctly yet.
+**Warning** This bundle is in very early development and will change. The functionality mentioned above is not yet implemented. Implemented functionality may not be working correctly yet.
 
 ## Features
 
@@ -13,7 +13,8 @@ Cloud-Services put constraints on how an application is allowed to run on their 
 * Command for packaging applications for Windows Azure (Done)
 * Startup tasks for cache:clear/cache:warmup are invoked for new instances. (Done)
 * Writing cache and log-files into a writable directory. (Done)
-* Distributed sessions (through PDO or Windows Azure Table)
+* Management of dev-fabric startup/cleanup during development
+* Distributed sessions (through pdo/sqlsrv, Doctrine DBAL + sqlsrv or Windows Azure Table)
 * Deploying assets to Azure Blob Storage
 * Aid for generation remote desktop usables instances and other common configuration options for ServiceDefinition.csdef and ServiceConfiguration.cscfg
 * Wrapper API for access to Azure Globals such as RoleId etc.
@@ -29,6 +30,10 @@ Why is this Symfony specific? Generic deployment of PHP applications on Azure re
 Prerequisites for this bundle are a Windows development machine with the Windows Azure SDK installed. You don't need the PHP SDK to run this bundle.
 
 You can either install the SDK through [Web Platform Installer](http://azurephp.interoperabilitybridges.com/articles/setup-the-windows-azure-development-environment-automatically-with-the-microsoft-web-platform-installer) or all [dependencies manually](http://azurephp.interoperabilitybridges.com/articles/setup-the-windows-azure-development-environment-manually).
+
+### Download
+
+Grab the ZIP Download from Github https://github.com/beberlei/AzureDistributionBundle and unzip it into "vendor/bundles/WindowsAzure/DistributionBundle". Proceed with section "Autoloading"
 
 ### Composer
 
@@ -50,7 +55,15 @@ For a 'bin\vendors' based application add the Git path to your 'deps' file.
     git=https://github.com/beberlei/AzureDistributionBundle.git
     target=/bundles/WindowsAzure/DistributionBundle
 
-Then call "php bin\vendors install" or "php bin\vendors update" to install this package.
+Then call "php bin\vendors install" or "php bin\vendors update" to install this package.Proceed with section "Autoloading"
+
+### Autoloading
+
+If you are not using Composer you have to manually register autoloading in 'app/autoload.php':
+
+    'WindowsAzure\\DistributionBundle' => __DIR__ . '/../vendor/bundles',
+
+Also you have to add the bundle in your kernel, see the next section on this.
 
 ## Azure Kernel
 

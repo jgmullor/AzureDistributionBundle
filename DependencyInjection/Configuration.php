@@ -37,6 +37,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('deployment')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('roleFiles')
                            ->children()
@@ -47,9 +48,6 @@ class Configuration implements ConfigurationInterface
                            ->end()
                         ->end()
                     ->end()
-                ->end()
-                ->arrayNode('session')
-                    
                 ->end()
             ->end()
         ;
