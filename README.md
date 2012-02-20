@@ -1,10 +1,10 @@
 # WindowsAzure Distribution Bundle
 
-Stability: PRE-ALPHA
+Stability: PRE-ALPHA, not production ready
 
 Bundle provides tools to deploy a Symfony2 based application on Windows Azure. The idea is to plug this bundle into any existing Symfony2 application and get it running on Azure smoothly.
 
-**Warning** This bundle is in very early development and will change. The functionality mentioned above is not yet implemented. Implemented functionality may not be working correctly yet.
+**Warning** This bundle is in very early development and will change. The functionality mentioned blow is not fully implemented.
 
 ## Features
 

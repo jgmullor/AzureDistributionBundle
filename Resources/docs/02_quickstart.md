@@ -29,5 +29,5 @@ This quickstart will guide you through the steps to deploy a clean Symfony2 appl
 
 11. Deploy the 'build\ServiceDefinition.cscfg' and 'build\azure.cspkg' using the management console
 
-12. Browse to http://<myapp>.cloud.net/hello/world
+12. Browse to http://<myapp>.cloudapp.net/hello/world
 
