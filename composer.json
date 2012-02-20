@@ -1,5 +1,5 @@
 {
-    "name": "windowsazure/distribution-bundle",
+    "name": "beberlei/azure-distribution-bundle",
     "type": "symfony-bundle",
     "authors": [
         {"name": "Benjamin Eberlei", "email": "kontakt@beberlei.de"}
