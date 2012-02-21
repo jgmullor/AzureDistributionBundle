@@ -81,7 +81,8 @@ class PackageCommand extends ContainerAwareCommand
         if ( ! $input->getOption('skip-role-file-generation')) {
             $output->writeln('Starting to compile role files for each physical directory.');
             $s = microtime(true);
-            $serviceDefinition->createRoleFiles($outputFile);
+            $inputDir = $this->getContainer()->getParameter('kernel.root_dir') . '/../';
+            $serviceDefinition->createRoleFiles($inputDir, $outputFile);
             $output->writeln('..compiled role-files. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
         }
 

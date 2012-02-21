@@ -113,6 +113,10 @@ class ServiceDefinition
         $webRoleNode = $roles->item(0);
         $webRoleNode->setAttribute('name', $name);
 
+        $sites = $webrole->getElementsByTagName('Site');
+        $siteNode = $sites->item(0);
+        $siteNode->setAttribute('physicalDirectory', $name . '\\' );
+
         $webRoleNode = $this->dom->importNode($webRoleNode, true);
         $this->dom->documentElement->appendChild($webRoleNode);
 
@@ -167,17 +171,16 @@ class ServiceDefinition
      * @param string $outputDir
      * @return void
      */
-    public function createRoleFiles($outputDir)
+    public function createRoleFiles($inputDir, $outputDir)
     {
         $outputDir = realpath($outputDir);
         $s = microtime(true);
-        $physicalDirs = $this->getPhysicalDirectories();
         $found = array();
         $s = microtime(true);
         $seenDirs = array();
         $longPaths = array();
-        foreach ($physicalDirs as $roleName => $dir) {
-            $dir = realpath($dir);
+        foreach ($this->getWebRoleNames() as $roleName) {
+            $dir = realpath($inputDir);
             $roleFilePath = sprintf('%s/%s.roleFiles.txt', $dir, $roleName);
 
             if (isset($seenDirs[$dir])) {
@@ -237,9 +240,9 @@ class ServiceDefinition
         // app/azure/$roleName.Web.config or $roleName.Web.config and rename
         // them to just Web.config in the main directoy of the role.
         if (file_exists($dir . "/app/azure/" . $roleName . ".Web.config")) {
-            $roleFile .= "app/azure/" . $roleName . ".Web.config;Web.config\r\n";
+            //$roleFile .= "app/azure/" . $roleName . ".Web.config;web.config\r\n";
         } else if (file_exists($dir . "/" . $roleName . ".Web.config")) {
-            $roleFile .= $roleName . ".Web.config;Web.config\r\n";
+            //$roleFile .= $roleName . ".Web.config;web.config\r\n";
         }
 
         return $roleFile;

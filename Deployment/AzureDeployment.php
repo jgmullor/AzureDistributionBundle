@@ -93,7 +93,8 @@ class AzureDeployment
                 $serviceConfig->addRole($name);
 
                 $filesystem = new Filesystem();
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/Web.config', $this->configDir . '/' . $name . '.Web.config');
+                $filesystem->mkdir($this->configDir . '/' . $name);
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/Web.config', $this->configDir . '/' . $name . '/web.config');
                 break;
             default:
                 throw new \RuntimeException("Unsupported role $type cannot be created");
