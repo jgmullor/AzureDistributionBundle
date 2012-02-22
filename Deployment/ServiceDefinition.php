@@ -168,20 +168,23 @@ class ServiceDefinition
      * paths. Only these files are then copied during the cspack.exe process to
      * the target deployment directory or package file.
      *
+     * @param string $inputDir
      * @param string $outputDir
-     * @return void
+     * @param string $roleFileDir
+     * @return array
      */
-    public function createRoleFiles($inputDir, $outputDir)
+    public function createRoleFiles($inputDir, $outputDir, $roleFileDir = null)
     {
+        $roleFileDir = $roleFileDir ?: $inputDir;
         $outputDir = realpath($outputDir);
-        $s = microtime(true);
-        $found = array();
-        $s = microtime(true);
         $seenDirs = array();
         $longPaths = array();
+        $roleFiles = array();
+
         foreach ($this->getWebRoleNames() as $roleName) {
             $dir = realpath($inputDir);
-            $roleFilePath = sprintf('%s/%s.roleFiles.txt', $dir, $roleName);
+            $roleFilePath = sprintf('%s/%s.roleFiles.txt', $roleFileDir, $roleName);
+            $roleFiles[$roleName] = $roleFilePath;
 
             if (isset($seenDirs[$dir])) {
                 // we have seen this directory already, just copy the known
@@ -198,6 +201,7 @@ class ServiceDefinition
         if ($longPaths) {
             throw new \RuntimeException("Paths are too long. Not more than 248 chars per directory and 260 per file name allowed:\n" . implode("\n", $longPaths));
         }
+        return $roleFiles;
     }
 
     /**
@@ -234,15 +238,6 @@ class ServiceDefinition
                 $longPaths[] = $checkPath . " (". strlen($checkPath) . ")";
             }
             $roleFile .= $path .";".$path."\r\n";
-        }
-
-        // Special handling for Web.config files, either pick them from
-        // app/azure/$roleName.Web.config or $roleName.Web.config and rename
-        // them to just Web.config in the main directoy of the role.
-        if (file_exists($dir . "/app/azure/" . $roleName . ".Web.config")) {
-            //$roleFile .= "app/azure/" . $roleName . ".Web.config;web.config\r\n";
-        } else if (file_exists($dir . "/" . $roleName . ".Web.config")) {
-            //$roleFile .= $roleName . ".Web.config;web.config\r\n";
         }
 
         return $roleFile;

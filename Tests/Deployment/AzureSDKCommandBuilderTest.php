@@ -24,10 +24,34 @@ class AzureSDKCommandBuilderTest extends \PHPUnit_Framework_TestCase
         $outputPath = "C:\output";
         $serviceDefFile = __DIR__ . '/_files/webrole_def.xml';
         $def = new ServiceDefinition($serviceDefFile);
-        $builder = new AzureSDKCommandBuilder($rootPath);
+        $builder = new AzureSDKCommandBuilder($rootPath, "c:\bin\\");
 
-        $cmd = $builder->buildPackageCmd($def, $outputPath, true);
-        $this->assertEquals('cspack.exe '.$serviceDefFile.' /role:TestRole;C:\symfony\app /out:C:\output /copyOnly', $cmd);
+        $args = $builder->buildPackageCmd($def, $outputPath, true);
+        $this->assertEquals(array(
+            'c:\bin\cspack.exe',
+            $serviceDefFile,
+            '/role:TestRole',
+            '/out:C:\output',
+            '/copyOnly'
+        ), $args);
+    }
+
+    public function testGetPackageCommandRoleFiles()
+    {
+        $rootPath = __DIR__ . '/_files/';
+        $outputPath = "C:\output";
+        $serviceDefFile = __DIR__ . '/_files/sf2role.xml';
+        $def = new ServiceDefinition($serviceDefFile);
+        $builder = new AzureSDKCommandBuilder($rootPath, "c:\bin\\");
+
+        $args = $builder->buildPackageCmd($def, $outputPath, true);
+        $this->assertEquals(array(
+            'c:\bin\cspack.exe',
+            $serviceDefFile,
+            '/roleFiles:Sf2Web;'.$rootPath.'/Sf2Web.roleFiles.txt',
+            '/out:C:\output',
+            '/copyOnly'
+        ), $args);
     }
 }
 

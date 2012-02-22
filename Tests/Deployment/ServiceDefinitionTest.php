@@ -28,5 +28,14 @@ class ServiceDefinitionTest extends \PHPUnit_Framework_TestCase
         $def = new ServiceDefinition(__DIR__ . "/_files/workerrole_def.xml");
         $this->assertEquals(array("WorkerRoleTest"), $def->getWorkerRoleNames());
     }
+
+    public function testCreateRoleFiles()
+    {
+        $def = new ServiceDefinition(__DIR__ . "/_files/webrole_def.xml");
+        $roleFiles = $def->createRoleFiles(__DIR__ . '/../..', __DIR__, sys_get_temp_dir());
+
+        $data = file_get_contents($roleFiles["TestRole"]);
+        $this->assertContains('Deployment\ServiceDefinition.php;Deployment\ServiceDefinition.php', $data);
+    }
 }
 

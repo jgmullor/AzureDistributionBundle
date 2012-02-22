@@ -40,7 +40,7 @@ class AzureSDKCommandBuilder
     public function __construct($rootDir, $binDir = null)
     {
         $this->rootDir = $rootDir;
-        $this->binDir = $binDir ?: $this->getAzureSdkBinaryFolder();
+        $this->binDir = $binDir;
     }
 
     public function getOutputDir()
@@ -59,7 +59,7 @@ class AzureSDKCommandBuilder
     public function buildPackageCmd(ServiceDefinition $serviceDefinition, $outputDir, $isDevFabric)
     {
         $args = array (
-            $this->binDir . 'cspack.exe',
+            $this->getAzureSdkBinaryFolder() . 'cspack.exe',
             $serviceDefinition->getPath()
         );
         foreach ($serviceDefinition->getWebRoleNames() as $roleName) {
@@ -79,27 +79,27 @@ class AzureSDKCommandBuilder
 
     public function buildDevStoreStartCmd()
     {
-        return array($this->binDir . 'csrun.exe', '/devstore:start');
+        return array($this->getAzureSdkBinaryFolder() . 'csrun.exe', '/devstore:start');
     }
 
     public function buildDevFabricStartCmd()
     {
-        return array($this->binDir . 'csrun.exe', '/devfabric:start');
+        return array($this->getAzureSdkBinaryFolder() . 'csrun.exe', '/devfabric:start');
     }
 
     public function buildDevFabricRemoveAllCmd()
     {
-        return array($this->binDir . 'csrun.exe', '/removeAll');
+        return array($this->getAzureSdkBinaryFolder() . 'csrun.exe', '/removeAll');
     }
 
     public function buildDevRunPackage($packagePath, ServiceConfiguration $serviceConfiguration)
     {
-        return array($this->bindDir . 'csrun.exe', '/run:' . $packagePath . ';' . $serviceConfiguration->getPath(), '/launchBrowser');
+        return array($this->getAzureSdkBinaryFolder() . 'csrun.exe', '/run:' . $packagePath . ';' . $serviceConfiguration->getPath(), '/launchBrowser');
     }
 
     private function getRoleArgument($roleName, $serviceDefinition)
     {
-        $roleFilePath = realpath(sprintf('%s/%s.roleFiles.txt', dirname($serviceDefinition->getPath()) . '/../../', $roleName));
+        $roleFilePath = (sprintf('%s/%s.roleFiles.txt', $this->rootDir, $roleName));
         if (file_exists($roleFilePath)) {
             return sprintf('/roleFiles:%s;%s', $roleName, $roleFilePath);
         }
@@ -108,6 +108,10 @@ class AzureSDKCommandBuilder
 
     private function getAzureSdkBinaryFolder()
     {
+        if ($this->binDir) {
+            return $this->binDir;
+        }
+
         $programDirectories = array('ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432');
         $binDirectories = array('Windows Azure SDK\*\bin', 'Windows Azure Emulator\emulator');
         foreach ($programDirectories as $programDirectory) {

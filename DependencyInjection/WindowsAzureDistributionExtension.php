@@ -16,6 +16,7 @@ namespace WindowsAzure\DistributionBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -35,6 +36,40 @@ class WindowsAzureDistributionExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('windows_azure_distribution.config.deployment', $config['deployment']);
+
+        if (isset($config['session'])) {
+            $this->loadSession($config['session'], $container);
+        }
+    }
+
+    protected function loadSession($sessionConfig, $container)
+    {
+        switch($sessionConfig['type']) {
+            case 'pdo':
+                if (!isset($sessionConfig['database'])) {
+                    throw new \RuntimeException("Key windows_azure_distribution.session.database has to be set when PDO is selected.");
+                }
+
+                $definition = new Definition('PDO');
+                $definition->setArguments(array(
+                    'sqlsrv:server=' . $sessionConfig['database']['host'] . ';Database=' . $sessionConfig['database']['database'],
+                    $sessionConfig['database']['username'],
+                    $sessionConfig['database']['password']
+                ));
+                $container->setDefinition('windows_azure_distribution.session.pdo', $definition);
+
+                $definition = new Definition('%windows_azure_distribution.session_storage.pdo.class%');
+                $definition->setArguments(array(
+                    new Reference('windows_azure_distribution.session.pdo'),
+                    $container->getParameter('session.storage.options'),
+                    array('db_table' => $sessionConfig['database']['table'])
+                ));
+                $container->setDefinition('windows_azure_distribution.session_storage', $definition);
+                $container->setAlias('session.storage', 'windows_azure_distribution.session_storage');
+                break;
+            default:
+                throw new \RuntimeException("Unknown session config!");
+        }
     }
 }
 
