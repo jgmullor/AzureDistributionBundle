@@ -74,6 +74,7 @@ class AzureDeployment
             $filesystem->copy(__DIR__ . '/../Resources/role_template/ServiceConfiguration.cscfg', $this->configDir . '/ServiceConfiguration.cscfg');
             $filesystem->copy(__DIR__ . '/../Resources/role_template/ServiceDefinition.csdef', $this->configDir . '/ServiceDefinition.csdef');
             $filesystem->mirror(__DIR__ . '/../Resources/role_template/resources', $this->configDir . '/resources', null, array('copy_on_windows' => true));
+            $filesystem->mirror(__DIR__ . '/../Resources/role_template/php', $this->configDir . '/php', null, array('copy_on_windows' => true));
         }
 
         if ( !file_exists($this->binDir)) {

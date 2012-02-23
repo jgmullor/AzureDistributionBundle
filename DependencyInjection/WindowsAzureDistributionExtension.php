@@ -56,6 +56,7 @@ class WindowsAzureDistributionExtension extends Extension
                     $sessionConfig['database']['username'],
                     $sessionConfig['database']['password']
                 ));
+                $definition->addMethodCall('setAttribute', array(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION));
                 $container->setDefinition('windows_azure_distribution.session.pdo', $definition);
 
                 $definition = new Definition('%windows_azure_distribution.session_storage.pdo.class%');
@@ -66,6 +67,13 @@ class WindowsAzureDistributionExtension extends Extension
                 ));
                 $container->setDefinition('windows_azure_distribution.session_storage', $definition);
                 $container->setAlias('session.storage', 'windows_azure_distribution.session_storage');
+
+                $definition = new Definition('%windows_azure_distribution.cache_warmer.dbtable.class%');
+                $definition->setArguments(array(
+                    new Reference('windows_azure_distribution.session.pdo'),
+                    array('db_table' => $sessionConfig['database']['table'])
+                ));
+                $definition->addTag('kernel.cache_warmer');
                 break;
             default:
                 throw new \RuntimeException("Unknown session config!");
