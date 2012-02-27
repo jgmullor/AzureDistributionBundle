@@ -65,8 +65,8 @@ class DbSessionTable implements CacheWarmerInterface
         if ( ! $stmt->fetch()) {
             $sql = "CREATE TABLE " . $this->dbOptions['db_table'] . " (" .
                    $this->dbOptions['db_id_col'] . " VARCHAR(" . $this->dbOptions['db_id_length'].") PRIMARY KEY NONCLUSTERED, " .
-                   $this->dbOptions['db_data_col'] . " VARBINARY(MAX), " .
-                   $this->dbOptions['db_time_col'] . " DATETIME2)";
+                   $this->dbOptions['db_data_col'] . " NVARCHAR(MAX), " .
+                   $this->dbOptions['db_time_col'] . " INT)";
             $this->pdo->exec($sql);
 
             $sql = "CREATE CLUSTERED INDEX sess_time_idx ON " .
