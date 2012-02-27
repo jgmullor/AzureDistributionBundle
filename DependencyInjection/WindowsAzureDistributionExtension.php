@@ -74,6 +74,8 @@ class WindowsAzureDistributionExtension extends Extension
                     array('db_table' => $sessionConfig['database']['table'])
                 ));
                 $definition->addTag('kernel.cache_warmer');
+
+                $container->setDefinition('windows_azure_distribution.cache_warmer.dbtable', $definition);
                 break;
             default:
                 throw new \RuntimeException("Unknown session config!");

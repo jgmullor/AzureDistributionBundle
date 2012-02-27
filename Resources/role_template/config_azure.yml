@@ -1,0 +1,19 @@
+# Azure derives from production configuration and
+# adds all configuration necessary for Azure specific
+# deployment.
+imports:
+    - { resource: config_prod.yml }
+
+windows_azure_distribution:
+    session:
+        type: pdo
+        database:
+            host: %database_host%
+            username: %database_user%
+            password: %database_password%
+            database: %database_name%
+#    deployment:
+#      roleFiles:
+#          exclude:
+#            - vendor
+
