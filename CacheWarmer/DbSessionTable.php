@@ -74,5 +74,10 @@ class DbSessionTable implements CacheWarmerInterface
             $this->pdo->exec($sql);
         }
     }
+
+    public function isOptional()
+    {
+        return false;
+    }
 }
 
