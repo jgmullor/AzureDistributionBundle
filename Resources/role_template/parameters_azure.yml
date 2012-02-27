@@ -1,0 +1,9 @@
+# Put Azure Specific configuration parameters into
+# this file. These will overwrite parameters from parameters.yml
+parameters:
+    session_type: pdo
+    #database_host: tcp:XXXX.windows.net
+    #database_user: ~
+    #database_password: ~
+    #database_name: ~
+

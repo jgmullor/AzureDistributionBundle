@@ -99,6 +99,7 @@ class AzureDeployment
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/index.php', $this->configDir . '/' . $name . '/index.php');
                 // TODO: explicit directory more robust?
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/config_azure.yml', $this->configDir . '/../config/config_azure.yml');
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/parameters_azure.yml', $this->configDir . '/../config/parameters_azure.yml');
                 break;
             default:
                 throw new \RuntimeException("Unsupported role $type cannot be created");

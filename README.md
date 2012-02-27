@@ -15,7 +15,9 @@ Cloud-Services put constraints on how an application is allowed to run on their 
 * Writing cache and log-files into a writable directory. (Done)
 * Management of dev-fabric startup/cleanup during development
 * Distributed sessions (through pdo/sqlsrv, Doctrine DBAL + sqlsrv or Windows Azure Table)
-* Specific 'azure' environment that is inherits from prod.
+   * PDO (Done)
+   * Azure Table
+* Specific 'azure' environment that is inherits from prod. (Done)
 * Deploying assets to Azure Blob Storage
 * Aid for generation remote desktop usables instances and other common configuration options for ServiceDefinition.csdef and ServiceConfiguration.cscfg
 * Wrapper API for access to Azure Globals such as RoleId etc.

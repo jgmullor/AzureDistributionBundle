@@ -3,10 +3,11 @@
 # deployment.
 imports:
     - { resource: config_prod.yml }
+    - { resource: parameters_azure.yml }
 
 windows_azure_distribution:
     session:
-        type: pdo
+        type: %session_type%
         database:
             host: %database_host%
             username: %database_user%
