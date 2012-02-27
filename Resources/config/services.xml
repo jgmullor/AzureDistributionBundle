@@ -11,7 +11,7 @@
         <parameter key="windows_azure_distribution.deployment.azure_sdk_command_builder.class">WindowsAzure\DistributionBundle\Deployment\AzureSDKCommandBuilder</parameter>
         <parameter key="windows_azure_distribution.deployment.class">WindowsAzure\DistributionBundle\Deployment\AzureDeployment</parameter>
         <parameter key="windows_azure_distribution.config.deployment" type="collection" />
-        <parameter key="windows_azure_distribution.session_storage.pdo.class">Symfony\Component\HttpFoundation\SessionStorage\PdoSessionStorage</parameter>
+        <parameter key="windows_azure_distribution.session_storage.pdo.class">WindowsAzure\DistributionBundle\HttpFoundation\SessionStorage\PdoSessionStorage</parameter>
         <parameter key="windows_azure_distribution.cache_warmer.dbtable.class">WindowsAzure\DistributionBundle\CacheWarmer\DbSessionTable</parameter>
     </parameters>
 
