@@ -14,3 +14,4 @@ if (![Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::CurrentRoleInstanc
 }
 
 [Environment]::SetEnvironmentVariable('Path', $env:RoleRoot + '\base\x86;' + [Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine')
+[Environment]::SetEnvironmentVariable("LocalStorageRoot", [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetLocalResource('SymfonyFileCache').RootPath, "Machine")

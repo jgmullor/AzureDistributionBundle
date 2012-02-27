@@ -34,7 +34,15 @@ abstract class AzureKernel extends Kernel
 
         $isAzure = isset( $_SERVER['RdRoleId'] );
         if ($isAzure) {
-            $this->tempDir = sys_get_temp_dir() . "/sf_" . crc32($this->rootDir);
+            // See add-environment-variables.ps1 for how "LocalStorageRoot" is set.
+            // The Storage is defined in ServiceDefinition.csdef <LocalResources>.
+            // Using the ENV Variable makes the temporary directory consistent for calls through the
+            // Symfony console and access through IIS.
+            if (isset($_SERVER['LocalStorageRoot'])) {
+                $this->tempDir = $_SERVER['LocalStorageRoot'] . "/sf_" . crc32($this->rootDir);
+            } else {
+                $this->tempDir = sys_get_temp_dir() . "/sf_" . crc32($this->rootDir);
+            }
         } else {
             $this->tempDir = $this->rootDir;
         }

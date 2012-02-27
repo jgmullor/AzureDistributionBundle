@@ -96,6 +96,9 @@ class AzureDeployment
                 $filesystem = new Filesystem();
                 $filesystem->mkdir($this->configDir . '/' . $name);
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/Web.config', $this->configDir . '/' . $name . '/web.config');
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/index.php', $this->configDir . '/' . $name . '/index.php');
+                // TODO: explicit directory more robust?
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/config_azure.yml', $this->configDir . '/../config/config_azure.yml');
                 break;
             default:
                 throw new \RuntimeException("Unsupported role $type cannot be created");

@@ -26,4 +26,8 @@
     </Imports>
     <ConfigurationSettings>
     </ConfigurationSettings>
+    <LocalResources>
+        <!-- http://msdn.microsoft.com/en-us/library/windowsazure/ee758708.aspx -->
+        <LocalStorage name="SymfonyFileCache" sizeInMB="100" />
+    </LocalResources>
 </WebRole>

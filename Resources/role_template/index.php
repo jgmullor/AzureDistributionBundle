@@ -12,7 +12,7 @@ require_once $appRoot . '\AppKernel.php';
 
 use Symfony\Component\HttpFoundation\Request;
 
-$kernel = new AppKernel('prod', false);
+$kernel = new AppKernel('azure', false);
 $kernel->loadClassCache();
 //$kernel = new AppCache($kernel);
 $request = Request::createFromGlobals();
