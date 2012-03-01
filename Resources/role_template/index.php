@@ -1,7 +1,7 @@
 <?php
 
 // Try to find the application root directory.
-$appRoot = "E:\approot";
+$appRoot = "E:\approot\app";
 if (isset($_SERVER['ApplicationPath'])) {
     $appRoot = $_SERVER['ApplicationPath'] . '\app';
 }
