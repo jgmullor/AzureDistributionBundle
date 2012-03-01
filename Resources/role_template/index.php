@@ -1,9 +1,9 @@
 <?php
 
-if (isset($_SERVER['LOCALAPPDATA'])) {
-    $appRoot = realpath($_SERVER['LOCALAPPDATA'] . '\..\..\app');
-} else {
-    $appRoot = "E:\approot";
+// Try to find the application root directory.
+$appRoot = "E:\approot";
+if (isset($_SERVER['ApplicationPath'])
+    $appRoot = $_SERVER['ApplicationPath'] . '\app';
 }
 
 require_once $appRoot . '\bootstrap.php.cache';

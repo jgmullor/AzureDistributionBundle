@@ -15,3 +15,11 @@ if (![Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::CurrentRoleInstanc
 
 [Environment]::SetEnvironmentVariable('Path', $env:RoleRoot + '\base\x86;' + [Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine')
 [Environment]::SetEnvironmentVariable("LocalStorageRoot", [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetLocalResource('SymfonyFileCache').RootPath, "Machine")
+
+# Detect the script path of this ps1, assume its in "approot\bin" and
+# find the application directory. Set this as environment variable.
+# We need the application root in our front-controller to find the
+# application code.
+$scriptPath = Split-Path -parent $MyInvocation.MyCommand.Definition
+$applicationPath = Join-Path $scriptPath "\..\"
+[Environment]::SetEnvironmentVariable('ApplicationPath', (Resolve-Path $applicationPath).Path)
