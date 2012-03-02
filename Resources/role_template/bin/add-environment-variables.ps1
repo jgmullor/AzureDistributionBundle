@@ -22,4 +22,4 @@ if (![Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::CurrentRoleInstanc
 # application code.
 $scriptPath = Split-Path -parent $MyInvocation.MyCommand.Definition
 $applicationPath = Join-Path $scriptPath "\..\"
-[Environment]::SetEnvironmentVariable('ApplicationPath', (Resolve-Path $applicationPath).Path)
+[Environment]::SetEnvironmentVariable("ApplicationPath", (Resolve-Path $applicationPath).Path, "Machine")
