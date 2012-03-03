@@ -47,6 +47,7 @@ An example of the parameters.yml looks like:
     # this file. These will overwrite parameters from parameters.yml
     parameters:
         session_type: pdo
+        database_driver: pdo_sqlsrv
         database_host: tcp:DBID.database.windows.net
         database_user: USER@DBID
         database_password: PWD
