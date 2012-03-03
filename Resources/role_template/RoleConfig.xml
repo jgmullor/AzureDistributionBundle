@@ -13,7 +13,7 @@
 
              Delete this attribute if you don't want diagnostics for your role.
         -->
-        <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value=""/>
+        <!--<Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value=""/>-->
     </ConfigurationSettings>
 </Role>
 
