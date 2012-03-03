@@ -31,7 +31,7 @@ This quickstart will guide you through the steps to deploy a clean Symfony2 appl
 
 12. Deploy the `build\ServiceDefinition.cscfg` and `build\azure.cspkg` using the management console
 
-13. Browse to http://<myapp>.cloudapp.net/hello/world
+13. Browse to http://appid.cloudapp.net/ - http://appid.cloudapp.net/hello/world or http://appid.cloudapp.net/tasks
 
 ## Installing the Task Demo Bundle
 
