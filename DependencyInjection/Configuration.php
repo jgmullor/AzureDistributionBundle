@@ -68,6 +68,12 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('diagnostics')
+                    ->children()
+                        ->scalarNode('accountName')->end()
+                        ->scalarNode('accountKey')->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 

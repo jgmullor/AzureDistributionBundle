@@ -2,6 +2,18 @@
 <Role name="">
     <Instances count="2" />
     <ConfigurationSettings>
-        <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true"/>
+        <!--
+             Configuration for Diagnostics Storage Account, keep empty to automatically
+             fill this from Symfony config.yml values in the key:
+
+                windows_azure_distribution
+                    diagnostics:
+                        accountName: xxx
+                        accountKey: yyy
+
+             Delete this attribute if you don't want diagnostics for your role.
+        -->
+        <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value=""/>
     </ConfigurationSettings>
 </Role>
+

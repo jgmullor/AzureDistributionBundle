@@ -40,6 +40,9 @@ class WindowsAzureDistributionExtension extends Extension
         if (isset($config['session'])) {
             $this->loadSession($config['session'], $container);
         }
+        if (isset($config['diagnostics'])) {
+            $container->setParameter('windows_azure_distribution.config.diagnostics.storage', $config['diagnostics']);
+        }
     }
 
     protected function loadSession($sessionConfig, $container)

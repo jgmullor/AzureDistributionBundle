@@ -50,14 +50,22 @@ class AzureDeployment
     private $options;
 
     /**
+     * @var array
+     */
+    private $storage;
+
+    /**
      * @param string $configDir Directory with Azure specific configuration
      * @param string $binDir Directory where binaries are placed.
+     * @param array $options
+     * @param array $storage
      */
-    public function __construct($configDir, $binDir, array $options = array())
+    public function __construct($configDir, $binDir, array $options = array(), array $storage = array())
     {
         $this->configDir = $configDir;
         $this->binDir = $binDir;
         $this->options = $options;
+        $this->storage = $storage;
     }
 
     /**
@@ -130,7 +138,7 @@ class AzureDeployment
     public function getServiceConfiguration()
     {
         if ( ! $this->serviceConfiguration) {
-            $this->serviceConfiguration = new ServiceConfiguration($this->configDir . '/ServiceConfiguration.cscfg');
+            $this->serviceConfiguration = new ServiceConfiguration($this->configDir . '/ServiceConfiguration.cscfg', $this->storage);
         }
         return $this->serviceConfiguration;
     }

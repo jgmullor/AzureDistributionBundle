@@ -31,9 +31,15 @@ class ServiceConfiguration
     private $dom;
 
     /**
-     * @param string $serviceConfigurationFile
+     * @var array
      */
-    public function __construct($serviceConfigurationFile)
+    private $storage;
+
+    /**
+     * @param string $serviceConfigurationFile
+     * @param array $storage
+     */
+    public function __construct($serviceConfigurationFile, array $storage = array())
     {
         if (!file_exists($serviceConfigurationFile)) {
             throw new \InvalidArgumentException(sprintf(
@@ -45,6 +51,7 @@ class ServiceConfiguration
         $this->serviceConfigurationFile = $serviceConfigurationFile;
         $this->dom = new \DOMDocument('1.0', 'UTF-8');
         $this->dom->load($this->serviceConfigurationFile);
+        $this->storage = $storage;
     }
 
     public function getPath()
@@ -77,27 +84,28 @@ class ServiceConfiguration
      * @param string $targetPath
      * @return void
      */
-    public function copyForDevelopment($targetPath)
+    public function copyForDeployment($targetPath, $development = true)
     {
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->loadXML($this->dom->saveXML());
 
         $xpath = new \DOMXpath($dom);
-        $setting = $xpath->evaluate('//ConfigurationSettings/Setting[@name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString"]')->item(0);
-        $setting->setAttribute('value', 'UseDevelopmentStorage=true');
+        $settings = $xpath->evaluate('//ConfigurationSettings/Setting[@name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString"]');
+        foreach ($settings as $setting) {
+            if ($development) {
+                $setting->setAttribute('value', 'UseDevelopmentStorage=true');
+            } else if (strlen($setting->getAttribute('value') === 0) {
+                if ($this->storage) {
+                    $setting->setAttribute('value', sprintf('DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s',
+                        $this->storage['accountName'], $this->storage['accountKey']
+                    ));
+                } else {
+                    $setting->parentNode->remove($setting); // no configuration found and empty node, just delete it.
+                }
+            }
+        }
 
         $dom->save($targetPath . '/ServiceConfiguration.cscfg');
-    }
-
-    /**
-     * Copy for production, no changes to the file.
-     *
-     * @param string $targetPath
-     * @return void
-     */
-    public function copyForProduction($targetPath)
-    {
-        copy ($this->getPath(), $targetPath . '/ServiceConfiguration.cscfg');
     }
 }
 

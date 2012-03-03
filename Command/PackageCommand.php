@@ -86,11 +86,7 @@ class PackageCommand extends ContainerAwareCommand
             $output->writeln('..compiled role-files. (Took ' . number_format(microtime(true) - $s, 4) . ' seconds)');
         }
 
-        if ($input->getOption('dev-fabric')) {
-            $serviceConfiguration->copyForDevelopment($outputDir);
-        } else {
-            $serviceConfiguration->copyForProduction($outputDir);
-        }
+        $serviceConfiguration->copyForDeployment($outputDir, $input->getOption('dev-fabric'));
 
         $output->writeln('Calling cspack.exe to build Azure Package:');
         $azureCmdBuilder = $this->getContainer()->get('windows_azure_distribution.deployment.azure_sdk_command_builder');
