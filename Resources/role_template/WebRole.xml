@@ -29,5 +29,6 @@
     <LocalResources>
         <!-- http://msdn.microsoft.com/en-us/library/windowsazure/ee758708.aspx -->
         <LocalStorage name="SymfonyFileCache" sizeInMB="100" />
+        <LocalStorage name="SymfonyLogFiles" sizeInMB="1000" />
     </LocalResources>
 </WebRole>

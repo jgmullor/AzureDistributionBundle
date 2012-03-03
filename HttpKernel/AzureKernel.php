@@ -19,6 +19,11 @@ use Symfony\Component\HttpKernel\Kernel;
  * Azure Kernel handles the temporary directory logic depending on the
  * deployment status of the Symfony app: On Azure or not on Azure.
  *
+ * See add-environment-variables.ps1 for how "SymfonyAzureFileCache" is set.
+ * The Storage is defined in ServiceDefinition.csdef <LocalResources>.
+ * Using the ENV Variable makes the temporary directory consistent for calls through the
+ * Symfony console and access through IIS.
+ *
  * @author Benjamin Eberlei <kontakt@beberlei.de>
  */
 abstract class AzureKernel extends Kernel
@@ -34,15 +39,7 @@ abstract class AzureKernel extends Kernel
 
         $isAzure = isset( $_SERVER['RdRoleId'] );
         if ($isAzure) {
-            // See add-environment-variables.ps1 for how "LocalStorageRoot" is set.
-            // The Storage is defined in ServiceDefinition.csdef <LocalResources>.
-            // Using the ENV Variable makes the temporary directory consistent for calls through the
-            // Symfony console and access through IIS.
-            if (isset($_SERVER['LocalStorageRoot'])) {
-                $this->tempDir = $_SERVER['LocalStorageRoot'] . "/sf_" . crc32($this->rootDir);
-            } else {
-                $this->tempDir = sys_get_temp_dir() . "/sf_" . crc32($this->rootDir);
-            }
+            $this->tempDir = sys_get_temp_dir();
         } else {
             $this->tempDir = $this->rootDir;
         }
@@ -50,11 +47,17 @@ abstract class AzureKernel extends Kernel
 
     public function getCacheDir()
     {
+        if (isset($_SERVER['SymfonyAzureFileCache']) && is_dir($_SERVER['SymfonyAzureFileCache'])) {
+            return $_SERVER['SymfonyAzureFileCache'] . '/cache/' . $this->getEnvironment();
+        }
         return $this->tempDir . '/cache/' . $this->getEnvironment();
     }
 
     public function getLogDir()
     {
+        if (isset($_SERVER['SymfonyAzureLogFiles']) && is_dir($_SERVER['SymfonyAzureLogFiles'])) {
+            return $_SERVER['SymfonyAzureLogFiles'] . '/logs';
+        }
         return $this->tempDir . '/logs';
     }
 }

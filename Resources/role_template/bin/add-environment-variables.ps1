@@ -14,7 +14,8 @@ if (![Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::CurrentRoleInstanc
 }
 
 [Environment]::SetEnvironmentVariable('Path', $env:RoleRoot + '\base\x86;' + [Environment]::GetEnvironmentVariable('Path', 'Machine'), 'Machine')
-[Environment]::SetEnvironmentVariable("LocalStorageRoot", [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetLocalResource('SymfonyFileCache').RootPath, "Machine")
+[Environment]::SetEnvironmentVariable("SymfonyAzureFileCache", [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetLocalResource('SymfonyFileCache').RootPath, "Machine")
+[Environment]::SetEnvironmentVariable("SymfonyAzureLogFiles", [Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment]::GetLocalResource('SymfonyLogFiles').RootPath, "Machine")
 
 # Detect the script path of this ps1, assume its in "approot\bin" and
 # find the application directory. Set this as environment variable.
