@@ -58,7 +58,7 @@ This quickstart will guide you through the steps to deploy a clean Symfony2 appl
 
         - { resource: security.yml }
 
-    with the following line: 
+    with the following line (careful with indention and make sure to use spaces, not tabs): 
 
         - { resource: ../../src/WindowsAzure/TaskDemoBundle/Resources/config/security.yml }
 
