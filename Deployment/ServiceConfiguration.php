@@ -90,17 +90,28 @@ class ServiceConfiguration
         $dom->loadXML($this->dom->saveXML());
 
         $xpath = new \DOMXpath($dom);
-        $settings = $xpath->evaluate('//ConfigurationSettings/Setting[@name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString"]');
+        $xpath->registerNamespace('sc', $dom->lookupNamespaceUri($dom->namespaceURI));
+        $settings = $xpath->evaluate('//sc:ConfigurationSettings/sc:Setting[@name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString"]');
         foreach ($settings as $setting) {
             if ($development) {
                 $setting->setAttribute('value', 'UseDevelopmentStorage=true');
-            } else if (strlen($setting->getAttribute('value') === 0) {
+            } else if (strlen($setting->getAttribute('value')) === 0) {
                 if ($this->storage) {
                     $setting->setAttribute('value', sprintf('DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s',
                         $this->storage['accountName'], $this->storage['accountKey']
                     ));
                 } else {
-                    $setting->parentNode->remove($setting); // no configuration found and empty node, just delete it.
+                    throw new \RuntimeException(<<<EXC
+ServiceConfiguration.csdef: Missing value for 'Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString'.
+
+You have to modify the app/azure/ServiceConfiguration.csdef to contain a value for the diagnostics connection
+string or better configure 'windows_azure_distribution.diagnostics.accountName' and
+'windows_azure_distribution.diagnostics.accountKey' in your app/config/config.yml
+
+If you don't want to enable diagnostics you should delete the connection string
+elements from ServiceConfiguration.csdef file.
+EXC
+                    );
                 }
             }
         }

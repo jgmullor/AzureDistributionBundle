@@ -13,6 +13,14 @@ windows_azure_distribution:
             username: %database_user%
             password: %database_password%
             database: %database_name%
+
+# This parts should be moved to the config.yml as they are
+# used during packaging aswell and need to be availble in the
+# dev and prod environments.
+#
+#    diagnostics:
+#        accountName: xxx
+#        accountKey: xxx
 #    deployment:
 #      roleFiles:
 #          exclude:
