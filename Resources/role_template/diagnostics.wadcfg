@@ -1,30 +1,43 @@
 <DiagnosticMonitorConfiguration xmlns="http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration" configurationChangePollInterval="PT1M" overallQuotaInMB="1024">
-    <DiagnosticInfrastructureLogs bufferQuotaInMB="10"
-        scheduledTransferLogLevelFilter="Error"
-        scheduledTransferPeriod="PT1M" />
+    <DiagnosticInfrastructureLogs bufferQuotaInMB="10" scheduledTransferLogLevelFilter="Error" scheduledTransferPeriod="PT1M" />
+    <!--
+        Explanation of error log level and how it affects transfer to storage account.
+        http://msdn.microsoft.com/en-us/library/windowsazure/microsoft.windowsazure.diagnostics.basiclogsbufferconfiguration.scheduledtransferloglevelfilter.aspx -->
+    -->
+    <Logs bufferQuotaInMB="0" scheduledTransferLogLevelFilter="Error" scheduledTransferPeriod="PT1M" />
 
-    <Logs bufferQuotaInMB="0" scheduledTransferLogLevelFilter="Verbose" scheduledTransferPeriod="PT1M" />
-
-    <Directories bufferQuotaInMB="0" scheduledTransferPeriod="PT5M">
-
+    <Directories bufferQuotaInMB="0" scheduledTransferPeriod="PT30M">
+        <!--
+        Transfer different system log-files to the configured storage account.
+        -->
+        <!--
         <CrashDumps container="wad-crash-dumps" directoryQuotaInMB="256" />
         <FailedRequestLogs container="wad-frq" directoryQuotaInMB="256" />
         <IISLogs container="wad-iis" directoryQuotaInMB="256" />
+        -->
 
+        <!--
         <DataSources>
             <DirectoryConfiguration container="wad-symfony" directoryQuotaInMB="128">
                 <LocalResource name="SymfonyLogFiles" relativePath="logs" />
             </DirectoryConfiguration>
         </DataSources>
+        -->
     </Directories>
 
-    <PerformanceCounters bufferQuotaInMB="0" scheduledTransferPeriod="PT1M">
+    <!-- Performance Information -->
+    <!--
+    <PerformanceCounters bufferQuotaInMB="0" scheduledTransferPeriod="PT10M">
         <PerformanceCounterConfiguration counterSpecifier="\Processor(_Total)\% Processor Time" sampleRate="PT5M" />
         <PerformanceCounterConfiguration counterSpecifier="\Memory\Available Mbytes" sampleRate="PT5M" />
     </PerformanceCounters>
+    -->
+    <!-- Windows Event Log -->
+    <!--
     <WindowsEventLog bufferQuotaInMB="0"
         scheduledTransferLogLevelFilter="Verbose"
-        scheduledTransferPeriod="PT5M">
+        scheduledTransferPeriod="PT30M">
         <DataSource name="System!*" />
     </WindowsEventLog>
+    -->
 </DiagnosticMonitorConfiguration>

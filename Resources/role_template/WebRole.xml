@@ -22,13 +22,24 @@
         <InputEndpoint name="HttpEndpoint" protocol="http" port="80" />
     </Endpoints>
     <Imports>
-        <Import moduleName="Diagnostics"/>
+        <!--
+            Enable Diagnostics if you want to transfer log-files, performance counters and other
+            information to a storage account. See the 'windows_azure_distribution.diagnostics'
+            configuration in your Symfony configuration.
+        -->
+        <!--<Import moduleName="Diagnostics"/>-->
     </Imports>
     <ConfigurationSettings>
     </ConfigurationSettings>
     <LocalResources>
-        <!-- http://msdn.microsoft.com/en-us/library/windowsazure/ee758708.aspx -->
+        <!--
+            More information about LocalStorage:
+            http://msdn.microsoft.com/en-us/library/windowsazure/ee758708.aspx
+
+            Details about the allowed max size of local storage per VM Size:
+            http://msdn.microsoft.com/en-us/library/windowsazure/ee814754.aspx
+        -->
         <LocalStorage name="SymfonyFileCache" sizeInMB="100" />
-        <LocalStorage name="SymfonyLogFiles" sizeInMB="1000" />
+        <LocalStorage name="SymfonyLogFiles" sizeInMB="2000" />
     </LocalResources>
 </WebRole>

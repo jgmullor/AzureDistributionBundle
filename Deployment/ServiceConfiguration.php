@@ -102,14 +102,17 @@ class ServiceConfiguration
                     ));
                 } else {
                     throw new \RuntimeException(<<<EXC
-ServiceConfiguration.csdef: Missing value for 'Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString'.
+ServiceConfiguration.csdef: Missing value for
+'Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString'.
 
-You have to modify the app/azure/ServiceConfiguration.csdef to contain a value for the diagnostics connection
-string or better configure 'windows_azure_distribution.diagnostics.accountName' and
-'windows_azure_distribution.diagnostics.accountKey' in your app/config/config.yml
+You have to modify the app/azure/ServiceConfiguration.csdef to contain
+a value for the diagnostics connection string or better configure
+'windows_azure_distribution.diagnostics.accountName' and
+'windows_azure_distribution.diagnostics.accountKey' in your
+app/config/config.yml
 
-If you don't want to enable diagnostics you should delete the connection string
-elements from ServiceConfiguration.csdef file.
+If you don't want to enable diagnostics you should delete the
+connection string elements from ServiceConfiguration.csdef file.
 EXC
                     );
                 }
