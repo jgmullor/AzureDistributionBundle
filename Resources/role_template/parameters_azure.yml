@@ -2,6 +2,7 @@
 # this file. These will overwrite parameters from parameters.yml
 parameters:
     session_type: pdo
+    #database_driver: pdo_sqlsrv
     #database_host: tcp:XXXX.windows.net
     #database_user: ~
     #database_password: ~

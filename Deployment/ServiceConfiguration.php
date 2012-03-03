@@ -69,5 +69,35 @@ class ServiceConfiguration
                         $this->serviceConfigurationFile));
         }
     }
+
+    /**
+     * Copy ServiceConfiguration over to build directory given with target path
+     * and modify some of the settings to point to development settings.
+     *
+     * @param string $targetPath
+     * @return void
+     */
+    public function copyForDevelopment($targetPath)
+    {
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->loadXML($this->dom->saveXML());
+
+        $xpath = new \DOMXpath($dom);
+        $setting = $xpath->evaluate('//ConfigurationSettings/Setting[@name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString"]')->item(0);
+        $setting->setAttribute('value', 'UseDevelopmentStorage=true');
+
+        $dom->save($targetPath . '/ServiceConfiguration.cscfg');
+    }
+
+    /**
+     * Copy for production, no changes to the file.
+     *
+     * @param string $targetPath
+     * @return void
+     */
+    public function copyForProduction($targetPath)
+    {
+        copy ($this->getPath(), $targetPath . '/ServiceConfiguration.cscfg');
+    }
 }
 
