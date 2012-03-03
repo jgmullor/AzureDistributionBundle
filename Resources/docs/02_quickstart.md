@@ -37,7 +37,7 @@ This quickstart will guide you through the steps to deploy a clean Symfony2 appl
 
 1. Downlad from https://github.com/beberlei/AzureTaskDemoBundle
 2. Unzip files into src\WindowsAzure\TaskDemoBundle
-3. Add `new WindowsAzure\TaskDemoBundle\WindowsAzureTaskDemoBundle()` into the `$bundles` array. 
+3. Add `new WindowsAzure\TaskDemoBundle\WindowsAzureTaskDemoBundle()` into the `$bundles` array in `app\AppKernel.php`
 4. Configure the database by modifying `app\config\azure_parameters.yml`.
 
     An example of the parameters.yml looks like:
@@ -62,4 +62,12 @@ This quickstart will guide you through the steps to deploy a clean Symfony2 appl
 
         - { resource: ../../src/WindowsAzure/TaskDemoBundle/Resources/config/security.yml }
 
-6. Import the contents of the "schema.sql" from src\WindowsAzure\TaskDemoBundle\Resources\schema.sql into your SQL Azure database.
+6. Register routes in app\config\routing.yml
+
+        WindowsAzureTaskDemoBundle:
+            resource: "@WindowsAzureTaskDemoBundle/Controller/"
+            type:     annotation
+            prefix:   /
+
+
+7. Import the contents of the "schema.sql" from src\WindowsAzure\TaskDemoBundle\Resources\schema.sql into your SQL Azure database.
