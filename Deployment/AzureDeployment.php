@@ -105,7 +105,7 @@ class AzureDeployment
                 $filesystem->mkdir($this->configDir . '/' . $name);
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/Web.config', $this->configDir . '/' . $name . '/web.config');
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/index.php', $this->configDir . '/' . $name . '/index.php');
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/diagnotics.wadcfg', $this->binDir . '/diagnostics.wadcfg');
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/diagnostics.wadcfg', $this->binDir . '/diagnostics.wadcfg');
                 // TODO: explicit directory more robust?
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/config_azure.yml', $this->configDir . '/../config/config_azure.yml');
                 $filesystem->copy(__DIR__ . '/../Resources/role_template/parameters_azure.yml', $this->configDir . '/../config/parameters_azure.yml');
