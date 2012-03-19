@@ -11,7 +11,7 @@ if (isset($_SERVER['ApplicationPath'])) {
 } else if ( file_exists("F:\approot\app")) {
     $appRoot = "F:\approot\app";
 } else {
-    exit(1);
+    $appRoot = __DIR__ . '\..\..\approot\app';
 }
 
 require_once $appRoot . '\bootstrap.php.cache';
