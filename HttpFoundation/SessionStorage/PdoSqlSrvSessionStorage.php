@@ -12,6 +12,7 @@
 namespace WindowsAzure\DistributionBundle\HttpFoundation\SessionStorage;
 
 use Symfony\Component\HttpFoundation\SessionStorage\NativeSessionStorage;
+use WindowsAzure\DistributionBundle\CacheWarmer\DbSessionTable;
 
 /**
  * PdoSessionStorage.
@@ -193,7 +194,15 @@ class PdoSqlSrvSessionStorage extends NativeSessionStorage
 
             return '';
         } catch (\PDOException $e) {
-            throw new \RuntimeException(sprintf('PDOException was thrown when trying to manipulate session data: %s', $e->getMessage()), 0, $e);
+            if (strpos($e->getMessage(), "Invalid object name '" . $this->dbOptions['db_table'] . "'") === false) {
+                throw new \RuntimeException(sprintf('PDOException was thrown when trying to manipulate session data: %s', $e->getMessage()), 0, $e);
+            }
+
+            // table was not found, try to create it.
+            $warmer = new DbSessionTable($this->db, $this->dbOptions);
+            $warmer->warmUp(null);
+
+            $this->sessionRead($id);
         }
     }
 
