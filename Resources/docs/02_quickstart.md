@@ -20,8 +20,8 @@ This quickstart will guide you through the steps to deploy a clean Symfony2 appl
 
 8. Open up the terminal and go to the project root. Call "php app\console". You should see a list of commands, containing two of the windows azure commands at the bottom:
 
-    windowsazure:init
-    windowsazure:package
+        windowsazure:init
+        windowsazure:package
 
 9. Call `php app\console windowsazure:init`
 
