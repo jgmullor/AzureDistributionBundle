@@ -91,7 +91,16 @@ class AzureDeployment
         $filesystem->mirror(__DIR__ . '/../Resources/role_template/bin', $this->binDir, null, array('copy_on_windows' => true));
     }
 
-    public function createRole($name, $type = self::ROLE_WEB)
+    /**
+     * Create a new role for this Azure Deployment
+     *
+     * @param string $name
+     * @param string $type
+     * @param bool $override
+     * @return void
+     * @throws RuntimeException - Unknown role given
+     */
+    public function createRole($name, $type = self::ROLE_WEB, $override = false)
     {
         $serviceDefinition = $this->getServiceDefinition();
         $serviceConfig = $this->getServiceConfiguration();
@@ -103,12 +112,12 @@ class AzureDeployment
 
                 $filesystem = new Filesystem();
                 $filesystem->mkdir($this->configDir . '/' . $name);
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/Web.config', $this->configDir . '/' . $name . '/web.config');
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/index.php', $this->configDir . '/' . $name . '/index.php');
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/diagnostics.wadcfg', $this->binDir . '/diagnostics.wadcfg');
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/web.config', $this->configDir . '/' . $name . '/web.config', $override);
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/index.php', $this->configDir . '/' . $name . '/index.php', $override);
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/diagnostics.wadcfg', $this->binDir . '/diagnostics.wadcfg', $override);
                 // TODO: explicit directory more robust?
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/config_azure.yml', $this->configDir . '/../config/config_azure.yml');
-                $filesystem->copy(__DIR__ . '/../Resources/role_template/parameters_azure.yml', $this->configDir . '/../config/parameters_azure.yml');
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/config_azure.yml', $this->configDir . '/../config/config_azure.yml', $override);
+                $filesystem->copy(__DIR__ . '/../Resources/role_template/parameters_azure.yml', $this->configDir . '/../config/parameters_azure.yml', $override);
                 break;
             default:
                 throw new \RuntimeException("Unsupported role $type cannot be created");
